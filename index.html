@@ -228,10 +228,12 @@ function applyLang(){
   document.querySelectorAll("[data-t]").forEach(el=>{el.textContent=t(el.dataset.t)});
   $("stamp").textContent=L().stamp;hzEl.lang=P.learn;
 }
+// Basic Launch on CrazyGames does not allow ads: set ADS=true only after the game is accepted for Full Launch.
+const ADS=false;
 const CG={ok:false,adOn:false,
   async init(){try{const sdk=window.CrazyGames&&window.CrazyGames.SDK;if(!sdk)return;await sdk.init();this.ok=sdk.environment==="crazygames"||sdk.environment==="local"}catch(e){this.ok=false}},
   game(fn){if(!this.ok)return;try{window.CrazyGames.SDK.game[fn]()}catch(e){}},
-  ad(type){return new Promise(res=>{if(!this.ok)return res(false);
+  ad(type){return new Promise(res=>{if(!this.ok||!ADS)return res(false);
     const done=ok=>{this.adOn=false;res(ok)};
     try{window.CrazyGames.SDK.ad.requestAd(type,{adStarted:()=>{this.adOn=true;try{speechSynthesis.cancel()}catch(e){}},adFinished:()=>done(true),adError:()=>done(false)})}catch(e){done(false)}})}};
 let ac=null;
@@ -334,7 +336,7 @@ function gameOver(){
   <div class="big">${S.score}${rec?`<span class="rec">${t("newRec")}</span>`:""}</div>
   <p>${T[P.ui].stats(S.right,S.total,L().name[P.ui]+" "+lvName(P.level),Math.max(old,S.score))}</p>
   ${miss?`<div class="lbl">${t("review")}</div><ul class="miss-list">${miss}</ul>`:""}
-  ${CG.ok&&!S.revived?`<button class="cta" type="button" data-act="revive">${t("revive")}</button><button class="ghost" type="button" data-act="again">${t("again")}</button>`:`<button class="cta" type="button" data-act="again">${t("again")}</button>`}<button class="ghost" type="button" data-act="menu">${t("change")}</button></div>`;
+  ${CG.ok&&ADS&&!S.revived?`<button class="cta" type="button" data-act="revive">${t("revive")}</button><button class="ghost" type="button" data-act="again">${t("again")}</button>`:`<button class="cta" type="button" data-act="again">${t("again")}</button>`}<button class="ghost" type="button" data-act="menu">${t("change")}</button></div>`;
   ov.hidden=false;
 }
 
