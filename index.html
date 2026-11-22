@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Từ Rơi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&family=Noto+Serif+SC:wght@600;700&family=Noto+Serif+JP:wght@600;700&family=Noto+Serif+KR:wght@600;700&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: playful study game, calm bamboo forest, quick and tactile
+   IDEA: paper word-tags (Chinese, English, Japanese, Korean) drifting down through a bamboo grove, stamped with a red seal
+   PICTURE: the play field itself: layered bamboo, mist, a falling tag, a grassy ground
+   COLOUR and TYPE: bamboo green ground, pale mist, vermilion seal accent; Noto Serif SC for hanzi, Be Vietnam Pro for UI
+   LAYOUT: green header bar with HUD, stage + 2x2 answers left, word log right (stacks under 960px) */
+:root{color-scheme:light dark;
+--bg:light-dark(#e4eedf,#0c1812);--ink:light-dark(#13231a,#e3eee6);--muted:light-dark(#4b6052,#9cb3a3);
+--panel:light-dark(#ffffff,#13251b);--line:light-dark(#c6d8c0,#26442f);
+--sky1:light-dark(#f4f9ef,#14301f);--sky2:light-dark(#cfe4c6,#0a160f);
+--b1:light-dark(#4f8f58,#2d5d38);--b2:light-dark(#3a7745,#234a2c);--b3:light-dark(#9cc79a,#1b3a24);
+--bar:light-dark(#2f6b3a,#16301e);--moon:light-dark(#ffffff,#e8e2bf);
+--ground:light-dark(#6d5737,#33291b);--grass:light-dark(#5e9b5c,#2f6a3b);
+--paper:#fffcf2;--seal:#d23a2b;--sealdk:#a8291d;--good:#2b8a4c}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
+.top{background:var(--bar);color:#fff;padding:12px max(4vw,12px)}
+.top-in{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto}
+.stamp{width:40px;height:40px;display:grid;place-items:center;background:var(--seal);border-radius:6px;font:700 24px/1 "Noto Serif SC",serif;box-shadow:inset 0 0 0 2px #fff4}
+.brand h1{margin:0;font-size:26px;line-height:1.05;font-weight:700}
+.hud{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat small{font-size:13px;opacity:.8}.stat b{font-size:20px;font-variant-numeric:tabular-nums}
+.lives{display:flex;gap:6px}
+.lan{width:16px;height:22px;border-radius:7px 7px 8px 8px;background:var(--seal);box-shadow:inset 0 -5px 0 #0003,0 0 10px #ff6a4d88;position:relative}
+.lan::before{content:"";position:absolute;left:4px;right:4px;top:-3px;height:3px;background:#f2c14e;border-radius:2px}
+.lan.off{background:#ffffff33;box-shadow:none}.lan.off::before{background:#ffffff44}
+.pbtn{min-height:44px;padding:0 16px;border-radius:10px;border:1.5px solid #ffffff66;background:#ffffff14;color:#fff;font-weight:600}
+.pbtn:hover{background:#ffffff26}
+.layout{max-width:1240px;margin:0 auto;padding:clamp(14px,3vw,32px) max(4vw,12px);display:grid;gap:24px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:960px){.layout{grid-template-columns:minmax(0,1fr) 320px}}
+.stage{position:relative;height:clamp(360px,60vh,580px);border-radius:18px;overflow:hidden;background:linear-gradient(var(--sky1),var(--sky2));box-shadow:0 18px 40px -24px #0b2a1599,inset 0 0 0 1px var(--line);user-select:none}
+.bg{position:absolute;inset:0;width:100%;height:100%}
+.ground{position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(var(--grass) 0 7px,var(--ground) 7px);box-shadow:0 -6px 14px -6px #0004}
+.tile{position:absolute;left:0;top:0;z-index:2;min-width:96px;padding:12px 18px 12px;text-align:center;color:#1b1510;background:var(--paper);border-radius:6px;box-shadow:0 12px 20px -10px #0008,inset 0 0 0 2px var(--seal),inset 0 0 0 5px var(--paper),inset 0 0 0 6px #d23a2b55;will-change:transform;visibility:hidden}
+.tile::before{content:"";position:absolute;left:50%;top:-26px;width:1.5px;height:26px;background:#5b4a35}
+.tile::after{content:"";position:absolute;left:calc(50% - 4px);top:6px;width:8px;height:8px;border-radius:50%;background:var(--sky2);box-shadow:inset 0 1px 2px #0005}
+.hz{font:700 44px/1.15 "Noto Serif SC",serif;margin-top:8px;white-space:nowrap}
+.py{font-weight:600;font-size:15px;color:var(--sealdk);height:0;opacity:0;overflow:hidden;transition:opacity .2s,height .2s;white-space:nowrap}
+.show-py .py{height:22px;opacity:1}
+.tile.hit{animation:pop .5s ease-out}.tile.miss{animation:shake .4s}.tile.dropped{filter:grayscale(.85) brightness(.92)}
+@keyframes pop{40%{scale:1.2;box-shadow:0 0 0 10px #2b8a4c44,inset 0 0 0 2px var(--good)}100%{scale:1}}
+@keyframes shake{25%{translate:-7px 0}75%{translate:7px 0}}
+.flash{position:absolute;z-index:3;font-weight:700;font-size:20px;color:var(--good);pointer-events:none;animation:up .8s forwards;text-shadow:0 1px 0 #fff8}
+@keyframes up{to{translate:0 -40px;opacity:0}}
+.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.opt{display:flex;align-items:center;gap:12px;min-height:58px;padding:8px 14px;text-align:left;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-size:17px;font-weight:600;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--b1)}
+.opt:disabled{cursor:default;opacity:.55}
+.opt kbd{flex:none;width:26px;height:26px;display:grid;place-items:center;border-radius:6px;background:var(--bg);font:600 13px/1 "Be Vietnam Pro";color:var(--muted)}
+.opt.good{background:var(--good);border-color:var(--good);color:#fff;opacity:1}
+.opt.bad{background:var(--seal);border-color:var(--seal);color:#fff;opacity:1}
+.opt.good kbd,.opt.bad kbd{background:#ffffff33;color:#fff}
+.overlay{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:12px;background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(3px)}
+.overlay[hidden]{display:none}
+.card{width:min(440px,100%);max-height:100%;overflow:auto;background:var(--panel);border-radius:16px;padding:22px;box-shadow:0 20px 40px -20px #0007;border:1px solid var(--line)}
+.card h2{margin:0 0 6px;font-size:32px;line-height:1.05;text-wrap:balance}
+.card p{margin:0 0 14px;color:var(--muted)}
+.lbl{font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.seg button,.tg button{min-height:48px;border-radius:10px;border:2px solid var(--line);background:var(--bg);font-weight:600;line-height:1.2;padding:6px}
+.seg.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
+.seg [lang]{font-size:18px}
+.hz:lang(ja),.seg [lang=ja],.log b:lang(ja),.miss-list b:lang(ja){font-family:"Noto Serif JP",serif}
+.hz:lang(ko),.seg [lang=ko],.log b:lang(ko),.miss-list b:lang(ko){font-family:"Noto Serif KR",serif}
+.hz:lang(en),.log b:lang(en),.miss-list b:lang(en){font-family:"Noto Serif",Georgia,serif}
+.hz.long{font-size:32px}
+.seg button small{display:block;font-size:13px;font-weight:400;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--bar);border-color:var(--bar);color:#fff}
+.seg button[aria-pressed=true] small{color:#ffffffcc}
+.tg{display:flex;flex-wrap:wrap;gap:8px}
+.tg button{min-height:44px;padding:0 14px;display:flex;align-items:center;gap:8px}
+.tg button::before{content:"";width:30px;height:18px;border-radius:9px;background:var(--line);box-shadow:inset 3px 0 0 1px var(--panel);transition:.15s}
+.tg button[aria-pressed=true]::before{background:var(--good);box-shadow:inset -12px 0 0 1px var(--good),inset -13px 0 0 3px #fff}
+.cta{width:100%;min-height:52px;margin-top:18px;border:0;border-radius:12px;background:var(--seal);color:#fff;font-size:18px;font-weight:700;box-shadow:0 6px 0 var(--sealdk)}
+.cta:active{translate:0 3px;box-shadow:0 3px 0 var(--sealdk)}
+.ghost{width:100%;min-height:46px;margin-top:10px;border-radius:12px;border:2px solid var(--line);background:transparent;font-weight:600}
+.big{font-size:52px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums}
+.rec{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:99px;background:var(--seal);color:#fff;font-size:13px;vertical-align:middle}
+.miss-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.miss-list li,.log li{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:baseline;gap:10px;padding:6px 10px;border-radius:8px;background:var(--bg)}
+.miss-list b,.log b{font:700 20px/1.2 "Noto Serif SC",serif}
+.miss-list i,.log i{font-style:normal;color:var(--sealdk);font-size:14px}
+:root:not([data-theme=light]) .miss-list i,:root:not([data-theme=light]) .log i{color:light-dark(var(--sealdk),#ff8a7a)}
+.log{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;align-self:start}
+.log h2{margin:0;font-size:20px}
+.log p{margin:2px 0 12px;color:var(--muted);font-size:14px}
+.log ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:520px;overflow:auto}
+.log li{grid-template-columns:8px auto auto minmax(0,1fr)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--good);align-self:center}.dot.no{background:var(--seal)}
+.empty{color:var(--muted);font-size:14px;padding:10px 0}
+.foot{max-width:1240px;margin:0 auto;padding:0 max(4vw,12px) 28px;color:var(--muted);font-size:13px}
+@media(max-width:600px){.brand h1{font-size:22px}.hud{gap:6px 14px;width:100%}.pbtn{margin-left:auto}.hz{font-size:38px}.opt{font-size:16px;min-height:54px;padding:8px 10px;gap:8px}.card h2{font-size:28px}.big{font-size:44px}}
+@media(prefers-reduced-motion:reduce){.tile.hit,.tile.miss,.flash{animation:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand"><div class="stamp" id="stamp" aria-hidden="true">字</div><h1 data-t="title">Từ Rơi</h1></div>
+  <div class="hud">
+    <div class="stat"><small data-t="score">Điểm</small><b id="score">0</b></div>
+    <div class="stat"><small>Combo</small><b id="combo">x1</b></div>
+    <div class="stat"><small data-t="lives">Mạng</small><div class="lives" id="lives"></div></div>
+    <button class="pbtn" id="pauseBtn" type="button">Tạm dừng</button>
+  </div>
+</div></header>
+
+<main class="layout">
+  <section aria-label="Khu vực chơi">
+    <div class="stage" id="stage">
+      <svg class="bg" viewBox="0 0 400 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs>
+          <g id="stalk">
+            <rect x="-7" y="0" width="14" height="600" rx="5"/>
+            <rect x="-9" y="90" width="18" height="5" rx="2" opacity=".55"/>
+            <rect x="-9" y="210" width="18" height="5" rx="2" opacity=".55"/>
+            <rect x="-9" y="330" width="18" height="5" rx="2" opacity=".55"/>
+            <rect x="-9" y="450" width="18" height="5" rx="2" opacity=".55"/>
+            <ellipse cx="22" cy="86" rx="24" ry="5" transform="rotate(-24 22 86)"/>
+            <ellipse cx="-20" cy="206" rx="22" ry="5" transform="rotate(28 -20 206)"/>
+            <ellipse cx="24" cy="326" rx="26" ry="5" transform="rotate(-18 24 326)"/>
+          </g>
+        </defs>
+        <circle cx="300" cy="110" r="44" fill="var(--moon)" opacity=".7"/>
+        <g fill="var(--b3)" opacity=".9">
+          <use href="#stalk" x="40" transform="scale(.8) translate(0 140)"/>
+          <use href="#stalk" x="190" transform="scale(.8) translate(0 140)"/>
+          <use href="#stalk" x="330" transform="scale(.8) translate(0 140)"/>
+          <use href="#stalk" x="470" transform="scale(.8) translate(0 140)"/>
+        </g>
+        <g fill="var(--b1)">
+          <use href="#stalk" x="12"/><use href="#stalk" x="118" y="-40"/><use href="#stalk" x="388" y="-20"/>
+        </g>
+        <g fill="var(--b2)"><use href="#stalk" x="62" y="30"/><use href="#stalk" x="352" y="10"/></g>
+      </svg>
+      <div class="tile" id="tile"><div class="hz" id="hz" lang="zh"></div><div class="py" id="py"></div></div>
+      <div class="ground"></div>
+      <div class="overlay" id="overlay"></div>
+    </div>
+    <div class="answers" id="answers"></div>
+  </section>
+
+  <aside class="log" aria-live="polite">
+    <h2 data-t="log">Sổ từ trận này</h2>
+    <p id="logSum">Chưa có từ nào.</p>
+    <ul id="log"></ul>
+  </aside>
+</main>
+<p class="foot" data-t="foot">Từ vựng HSK 1 và HSK 2. Phát âm dùng giọng đọc tiếng Trung có sẵn trong trình duyệt (nếu máy có). Phím 1–4 để chọn đáp án, Space để tạm dừng.</p>
+
+<script>
+{
+
+const W1=[["爱","ài","yêu"],["八","bā","số tám"],["爸爸","bàba","bố"],["杯子","bēizi","cái cốc"],["北京","Běijīng","Bắc Kinh"],["本","běn","quyển (lượng từ)"],["不","bù","không"],["菜","cài","món ăn"],["茶","chá","trà"],["吃","chī","ăn"],["出租车","chūzūchē","taxi"],["大","dà","to, lớn"],["电脑","diànnǎo","máy tính"],["电视","diànshì","tivi"],["电影","diànyǐng","phim"],["东西","dōngxi","đồ vật"],["读","dú","đọc"],["对不起","duìbuqǐ","xin lỗi"],["多","duō","nhiều"],["儿子","érzi","con trai"],["飞机","fēijī","máy bay"],["饭店","fàndiàn","nhà hàng"],["高兴","gāoxìng","vui mừng"],["工作","gōngzuò","làm việc"],["狗","gǒu","con chó"],["汉语","Hànyǔ","tiếng Hán"],["好","hǎo","tốt"],["喝","hē","uống"],["很","hěn","rất"],["后面","hòumiàn","phía sau"],["回","huí","trở về"],["家","jiā","nhà"],["叫","jiào","gọi"],["今天","jīntiān","hôm nay"],["开","kāi","mở"],["看","kàn","xem, nhìn"],["看见","kànjiàn","nhìn thấy"],["块","kuài","đồng (tiền)"],["来","lái","đến"],["老师","lǎoshī","giáo viên"],["冷","lěng","lạnh"],["里","lǐ","bên trong"],["妈妈","māma","mẹ"],["猫","māo","con mèo"],["米饭","mǐfàn","cơm"],["明天","míngtiān","ngày mai"],["名字","míngzi","tên"],["朋友","péngyou","bạn bè"],["漂亮","piàoliang","xinh đẹp"],["苹果","píngguǒ","quả táo"],["钱","qián","tiền"],["热","rè","nóng"],["人","rén","người"],["认识","rènshi","quen biết"],["商店","shāngdiàn","cửa hàng"],["上午","shàngwǔ","buổi sáng"],["书","shū","sách"],["水","shuǐ","nước"],["水果","shuǐguǒ","trái cây"],["睡觉","shuìjiào","ngủ"],["说话","shuōhuà","nói chuyện"],["天气","tiānqì","thời tiết"],["听","tīng","nghe"],["同学","tóngxué","bạn học"],["喜欢","xǐhuan","thích"],["下雨","xiàyǔ","trời mưa"],["学生","xuésheng","học sinh"],["学校","xuéxiào","trường học"],["医生","yīshēng","bác sĩ"],["医院","yīyuàn","bệnh viện"],["衣服","yīfu","quần áo"],["昨天","zuótiān","hôm qua"],["坐","zuò","ngồi"],["字","zì","chữ"],["中国","Zhōngguó","Trung Quốc"],["桌子","zhuōzi","cái bàn"],["月","yuè","tháng"]];
+const W2=[["白","bái","màu trắng"],["帮助","bāngzhù","giúp đỡ"],["报纸","bàozhǐ","tờ báo"],["比","bǐ","so với"],["别","bié","đừng"],["宾馆","bīnguǎn","khách sạn"],["长","cháng","dài"],["唱歌","chànggē","hát"],["穿","chuān","mặc"],["船","chuán","thuyền"],["大家","dàjiā","mọi người"],["弟弟","dìdi","em trai"],["懂","dǒng","hiểu"],["房间","fángjiān","căn phòng"],["非常","fēicháng","vô cùng"],["服务员","fúwùyuán","nhân viên phục vụ"],["告诉","gàosu","cho biết"],["哥哥","gēge","anh trai"],["公司","gōngsī","công ty"],["贵","guì","đắt"],["孩子","háizi","đứa trẻ"],["好吃","hǎochī","ngon"],["黑","hēi","màu đen"],["红","hóng","màu đỏ"],["欢迎","huānyíng","chào mừng"],["机场","jīchǎng","sân bay"],["鸡蛋","jīdàn","trứng gà"],["教室","jiàoshì","phòng học"],["姐姐","jiějie","chị gái"],["介绍","jièshào","giới thiệu"],["近","jìn","gần"],["觉得","juéde","cảm thấy"],["咖啡","kāfēi","cà phê"],["考试","kǎoshì","kỳ thi"],["快乐","kuàilè","hạnh phúc"],["累","lèi","mệt"],["路","lù","con đường"],["旅游","lǚyóu","du lịch"],["卖","mài","bán"],["慢","màn","chậm"],["忙","máng","bận"],["妹妹","mèimei","em gái"],["门","mén","cửa"],["牛奶","niúnǎi","sữa bò"],["跑步","pǎobù","chạy bộ"],["便宜","piányi","rẻ"],["起床","qǐchuáng","thức dậy"],["晴","qíng","trời nắng"],["上班","shàngbān","đi làm"],["身体","shēntǐ","cơ thể"],["生日","shēngrì","sinh nhật"],["时间","shíjiān","thời gian"],["手表","shǒubiǎo","đồng hồ đeo tay"],["手机","shǒujī","điện thoại"],["送","sòng","tặng"],["跳舞","tiàowǔ","nhảy múa"],["玩","wán","chơi"],["晚上","wǎnshang","buổi tối"],["问题","wèntí","vấn đề"],["西瓜","xīguā","dưa hấu"],["希望","xīwàng","hy vọng"],["洗","xǐ","rửa, giặt"],["笑","xiào","cười"],["新","xīn","mới"],["休息","xiūxi","nghỉ ngơi"],["雪","xuě","tuyết"],["颜色","yánsè","màu sắc"],["眼睛","yǎnjing","mắt"],["药","yào","thuốc"],["一起","yìqǐ","cùng nhau"],["游泳","yóuyǒng","bơi"],["右边","yòubian","bên phải"],["鱼","yú","con cá"],["远","yuǎn","xa"],["运动","yùndòng","thể thao"],["早上","zǎoshang","sáng sớm"],["丈夫","zhàngfu","chồng"],["妻子","qīzi","vợ"],["准备","zhǔnbèi","chuẩn bị"],["走","zǒu","đi bộ"],["最","zuì","nhất"],["左边","zuǒbian","bên trái"]];
+const EN={"爱":"to love","八":"eight","爸爸":"dad","杯子":"cup","北京":"Beijing","本":"(measure word for books)","不":"not, no","菜":"dish (food)","茶":"tea","吃":"to eat","出租车":"taxi","大":"big","电脑":"computer","电视":"television","电影":"movie","东西":"thing","读":"to read","对不起":"sorry","多":"many, much","儿子":"son","飞机":"airplane","饭店":"restaurant","高兴":"glad","工作":"to work","狗":"dog","汉语":"Chinese language","好":"good","喝":"to drink","很":"very","后面":"behind","回":"to return","家":"home","叫":"to call","今天":"today","开":"to open","看":"to look, watch","看见":"to see","块":"yuan (money)","来":"to come","老师":"teacher","冷":"cold","里":"inside","妈妈":"mom","猫":"cat","米饭":"cooked rice","明天":"tomorrow","名字":"name","朋友":"friend","漂亮":"pretty","苹果":"apple","钱":"money","热":"hot","人":"person","认识":"to know (someone)","商店":"shop","上午":"morning","书":"book","水":"water","水果":"fruit","睡觉":"to sleep","说话":"to talk","天气":"weather","听":"to listen","同学":"classmate","喜欢":"to like","下雨":"to rain","学生":"student","学校":"school","医生":"doctor","医院":"hospital","衣服":"clothes","昨天":"yesterday","坐":"to sit","字":"character, word","中国":"China","桌子":"table","月":"month",
+"白":"white","帮助":"to help","报纸":"newspaper","比":"compared to","别":"don't","宾馆":"hotel","长":"long","唱歌":"to sing","穿":"to wear","船":"boat","大家":"everyone","弟弟":"younger brother","懂":"to understand","房间":"room","非常":"extremely","服务员":"waiter","告诉":"to tell","哥哥":"older brother","公司":"company","贵":"expensive","孩子":"child","好吃":"delicious","黑":"black","红":"red","欢迎":"welcome","机场":"airport","鸡蛋":"egg","教室":"classroom","姐姐":"older sister","介绍":"to introduce","近":"near","觉得":"to feel, think","咖啡":"coffee","考试":"exam","快乐":"happy","累":"tired","路":"road","旅游":"to travel","卖":"to sell","慢":"slow","忙":"busy","妹妹":"younger sister","门":"door","牛奶":"milk","跑步":"to jog","便宜":"cheap","起床":"to get up","晴":"sunny","上班":"to go to work","身体":"body","生日":"birthday","时间":"time","手表":"wristwatch","手机":"mobile phone","送":"to give (a gift)","跳舞":"to dance","玩":"to play","晚上":"evening","问题":"problem, question","西瓜":"watermelon","希望":"to hope","洗":"to wash","笑":"to laugh, smile","新":"new","休息":"to rest","雪":"snow","颜色":"color","眼睛":"eye","药":"medicine","一起":"together","游泳":"to swim","右边":"right side","鱼":"fish","远":"far","运动":"sport","早上":"early morning","丈夫":"husband","妻子":"wife","准备":"to prepare","走":"to walk","最":"most","左边":"left side"};
+const ZH1=W1.map(w=>[w[0],w[1],w[2],EN[w[0]]]),ZH2=W2.map(w=>[w[0],w[1],w[2],EN[w[0]]]);
+const EN1=[["apple","/ˈæpəl/","quả táo","apple"],["book","/bʊk/","quyển sách","book"],["cat","/kæt/","con mèo","cat"],["dog","/dɔɡ/","con chó","dog"],["house","/haʊs/","ngôi nhà","house"],["water","/ˈwɔtər/","nước","water"],["friend","/frɛnd/","bạn bè","friend"],["teacher","/ˈtitʃər/","giáo viên","teacher"],["school","/skul/","trường học","school"],["family","/ˈfæməli/","gia đình","family"],["mother","/ˈmʌðər/","mẹ","mother"],["father","/ˈfɑðər/","bố","father"],["red","/rɛd/","màu đỏ","red"],["green","/ɡrin/","màu xanh lá","green"],["big","/bɪɡ/","to, lớn","big"],["small","/smɔl/","nhỏ","small"],["happy","/ˈhæpi/","vui vẻ","happy"],["hungry","/ˈhʌŋɡri/","đói","hungry"],["eat","/it/","ăn","eat"],["drink","/drɪŋk/","uống","drink"],["sleep","/slip/","ngủ","sleep"],["run","/rʌn/","chạy","run"],["read","/rid/","đọc","read"],["write","/raɪt/","viết","write"],["today","/təˈdeɪ/","hôm nay","today"],["tomorrow","/təˈmɑroʊ/","ngày mai","tomorrow"],["morning","/ˈmɔrnɪŋ/","buổi sáng","morning"],["night","/naɪt/","ban đêm","night"],["car","/kɑr/","xe ô tô","car"],["door","/dɔr/","cửa ra vào","door"],["window","/ˈwɪndoʊ/","cửa sổ","window"],["chair","/tʃɛr/","cái ghế","chair"],["bread","/brɛd/","bánh mì","bread"],["rice","/raɪs/","gạo, cơm","rice"],["milk","/mɪlk/","sữa","milk"],["hot","/hɑt/","nóng","hot"],["cold","/koʊld/","lạnh","cold"],["city","/ˈsɪti/","thành phố","city"],["money","/ˈmʌni/","tiền","money"],["phone","/foʊn/","điện thoại","phone"]];
+const EN2=[["weather","/ˈwɛðər/","thời tiết","weather"],["holiday","/ˈhɑlɪdeɪ/","kỳ nghỉ","holiday"],["journey","/ˈdʒɜrni/","chuyến đi","journey"],["borrow","/ˈbɑroʊ/","mượn","borrow"],["believe","/bɪˈliv/","tin tưởng","believe"],["remember","/rɪˈmɛmbər/","nhớ","remember"],["forget","/fərˈɡɛt/","quên","forget"],["expensive","/ɪkˈspɛnsɪv/","đắt","expensive"],["cheap","/tʃip/","rẻ","cheap"],["dangerous","/ˈdeɪndʒərəs/","nguy hiểm","dangerous"],["healthy","/ˈhɛlθi/","khỏe mạnh","healthy"],["tired","/taɪərd/","mệt","tired"],["angry","/ˈæŋɡri/","tức giận","angry"],["afraid","/əˈfreɪd/","sợ hãi","afraid"],["neighbor","/ˈneɪbər/","hàng xóm","neighbor"],["customer","/ˈkʌstəmər/","khách hàng","customer"],["doctor","/ˈdɑktər/","bác sĩ","doctor"],["kitchen","/ˈkɪtʃən/","nhà bếp","kitchen"],["bridge","/brɪdʒ/","cây cầu","bridge"],["river","/ˈrɪvər/","dòng sông","river"],["mountain","/ˈmaʊntən/","ngọn núi","mountain"],["island","/ˈaɪlənd/","hòn đảo","island"],["library","/ˈlaɪbrɛri/","thư viện","library"],["hospital","/ˈhɑspɪtəl/","bệnh viện","hospital"],["airport","/ˈɛrpɔrt/","sân bay","airport"],["invite","/ɪnˈvaɪt/","mời","invite"],["explain","/ɪkˈspleɪn/","giải thích","explain"],["decide","/dɪˈsaɪd/","quyết định","decide"],["arrive","/əˈraɪv/","đến nơi","arrive"],["choose","/tʃuz/","chọn","choose"],["quickly","/ˈkwɪkli/","nhanh chóng","quickly"],["always","/ˈɔlweɪz/","luôn luôn","always"],["never","/ˈnɛvər/","không bao giờ","never"],["often","/ˈɔfən/","thường xuyên","often"],["together","/təˈɡɛðər/","cùng nhau","together"],["breakfast","/ˈbrɛkfəst/","bữa sáng","breakfast"],["vegetable","/ˈvɛdʒtəbəl/","rau củ","vegetable"],["umbrella","/ʌmˈbrɛlə/","cái ô","umbrella"],["birthday","/ˈbɜrθdeɪ/","sinh nhật","birthday"],["weekend","/ˈwikɛnd/","cuối tuần","weekend"]];
+const JA1=[["水","mizu","nước","water"],["猫","neko","con mèo","cat"],["犬","inu","con chó","dog"],["本","hon","quyển sách","book"],["学校","gakkō","trường học","school"],["先生","sensei","giáo viên","teacher"],["友達","tomodachi","bạn bè","friend"],["家族","kazoku","gia đình","family"],["母","haha","mẹ","mother"],["父","chichi","bố","father"],["山","yama","ngọn núi","mountain"],["川","kawa","dòng sông","river"],["花","hana","hoa","flower"],["空","sora","bầu trời","sky"],["雨","ame","mưa","rain"],["朝","asa","buổi sáng","morning"],["夜","yoru","ban đêm","night"],["今日","kyō","hôm nay","today"],["明日","ashita","ngày mai","tomorrow"],["食べる","taberu","ăn","to eat"],["飲む","nomu","uống","to drink"],["見る","miru","xem, nhìn","to see, watch"],["行く","iku","đi","to go"],["来る","kuru","đến","to come"],["大きい","ōkii","to, lớn","big"],["小さい","chiisai","nhỏ","small"],["新しい","atarashii","mới","new"],["高い","takai","cao; đắt","tall; expensive"],["安い","yasui","rẻ","cheap"],["ありがとう","arigatō","cảm ơn","thank you"],["すみません","sumimasen","xin lỗi","excuse me"],["電車","densha","tàu điện","train"],["駅","eki","nhà ga","station"],["お金","okane","tiền","money"],["魚","sakana","con cá","fish"],["肉","niku","thịt","meat"],["お茶","ocha","trà","tea"],["赤い","akai","màu đỏ","red"],["白い","shiroi","màu trắng","white"],["人","hito","người","person"]];
+const JA2=[["時間","jikan","thời gian","time"],["仕事","shigoto","công việc","work, job"],["会社","kaisha","công ty","company"],["病院","byōin","bệnh viện","hospital"],["天気","tenki","thời tiết","weather"],["旅行","ryokō","du lịch","travel"],["写真","shashin","bức ảnh","photo"],["音楽","ongaku","âm nhạc","music"],["映画","eiga","phim","movie"],["料理","ryōri","nấu ăn","cooking"],["部屋","heya","căn phòng","room"],["窓","mado","cửa sổ","window"],["車","kuruma","xe ô tô","car"],["自転車","jitensha","xe đạp","bicycle"],["飛行機","hikōki","máy bay","airplane"],["買う","kau","mua","to buy"],["読む","yomu","đọc","to read"],["書く","kaku","viết","to write"],["話す","hanasu","nói chuyện","to speak"],["聞く","kiku","nghe; hỏi","to listen; ask"],["寝る","neru","ngủ","to sleep"],["起きる","okiru","thức dậy","to wake up"],["遊ぶ","asobu","chơi","to play"],["待つ","matsu","chờ đợi","to wait"],["忙しい","isogashii","bận","busy"],["楽しい","tanoshii","vui","fun"],["難しい","muzukashii","khó","difficult"],["簡単","kantan","đơn giản","easy, simple"],["暑い","atsui","nóng (thời tiết)","hot (weather)"],["寒い","samui","lạnh (thời tiết)","cold (weather)"],["近い","chikai","gần","near"],["遠い","tōi","xa","far"],["元気","genki","khỏe khoắn","well, healthy"],["好き","suki","thích","to like"],["誕生日","tanjōbi","sinh nhật","birthday"],["朝ご飯","asagohan","bữa sáng","breakfast"],["野菜","yasai","rau củ","vegetables"],["傘","kasa","cái ô","umbrella"],["海","umi","biển","sea"],["秋","aki","mùa thu","autumn"]];
+const KO1=[["물","mul","nước","water"],["고양이","goyangi","con mèo","cat"],["개","gae","con chó","dog"],["책","chaek","quyển sách","book"],["학교","hakgyo","trường học","school"],["선생님","seonsaengnim","giáo viên","teacher"],["친구","chingu","bạn bè","friend"],["가족","gajok","gia đình","family"],["어머니","eomeoni","mẹ","mother"],["아버지","abeoji","bố","father"],["집","jip","nhà","house"],["밥","bap","cơm","rice (meal)"],["사과","sagwa","quả táo","apple"],["우유","uyu","sữa","milk"],["커피","keopi","cà phê","coffee"],["오늘","oneul","hôm nay","today"],["내일","naeil","ngày mai","tomorrow"],["어제","eoje","hôm qua","yesterday"],["아침","achim","buổi sáng","morning"],["밤","bam","ban đêm","night"],["먹다","meokda","ăn","to eat"],["마시다","masida","uống","to drink"],["가다","gada","đi","to go"],["오다","oda","đến","to come"],["보다","boda","xem, nhìn","to see, watch"],["자다","jada","ngủ","to sleep"],["크다","keuda","to, lớn","big"],["작다","jakda","nhỏ","small"],["좋다","jota","tốt","good"],["감사합니다","gamsahamnida","cảm ơn","thank you"],["미안합니다","mianhamnida","xin lỗi","I'm sorry"],["안녕하세요","annyeonghaseyo","xin chào","hello"],["사람","saram","người","person"],["돈","don","tiền","money"],["시간","sigan","thời gian","time"],["이름","ireum","tên","name"],["전화","jeonhwa","điện thoại","phone"],["비","bi","mưa","rain"],["눈","nun","mắt; tuyết","eye; snow"],["바다","bada","biển","sea"]];
+const KO2=[["날씨","nalssi","thời tiết","weather"],["여행","yeohaeng","du lịch","travel"],["사진","sajin","bức ảnh","photo"],["음악","eumak","âm nhạc","music"],["영화","yeonghwa","phim","movie"],["요리","yori","nấu ăn","cooking"],["방","bang","căn phòng","room"],["창문","changmun","cửa sổ","window"],["자동차","jadongcha","xe ô tô","car"],["자전거","jajeongeo","xe đạp","bicycle"],["비행기","bihaenggi","máy bay","airplane"],["병원","byeongwon","bệnh viện","hospital"],["회사","hoesa","công ty","company"],["시장","sijang","chợ","market"],["사다","sada","mua","to buy"],["읽다","ikda","đọc","to read"],["쓰다","sseuda","viết","to write"],["말하다","malhada","nói","to speak"],["듣다","deutda","nghe","to listen"],["배우다","baeuda","học","to learn"],["일하다","ilhada","làm việc","to work"],["기다리다","gidarida","chờ đợi","to wait"],["바쁘다","bappeuda","bận","busy"],["재미있다","jaemiitda","thú vị","interesting"],["어렵다","eoryeopda","khó","difficult"],["쉽다","swipda","dễ","easy"],["덥다","deopda","nóng (thời tiết)","hot (weather)"],["춥다","chupda","lạnh (thời tiết)","cold (weather)"],["가깝다","gakkapda","gần","near"],["멀다","meolda","xa","far"],["예쁘다","yeppeuda","xinh đẹp","pretty"],["맛있다","masitda","ngon","delicious"],["생일","saengil","sinh nhật","birthday"],["아침밥","achimbap","bữa sáng","breakfast"],["야채","yachae","rau củ","vegetables"],["우산","usan","cái ô","umbrella"],["산","san","ngọn núi","mountain"],["강","gang","dòng sông","river"],["꽃","kkot","hoa","flower"],["겨울","gyeoul","mùa đông","winter"]];
+const LANGS={
+  zh:{native:"中文",stamp:"字",speech:"zh-CN",long:4,name:{vi:"Tiếng Trung",en:"Chinese"},packs:[["HSK 1",ZH1],["HSK 2",ZH2]]},
+  en:{native:"English",stamp:"A",speech:"en-US",long:7,name:{vi:"Tiếng Anh",en:"English"},packs:[["A1",EN1],["A2",EN2]]},
+  ja:{native:"日本語",stamp:"語",speech:"ja-JP",long:4,name:{vi:"Tiếng Nhật",en:"Japanese"},packs:[["N5 · 1",JA1],["N5 · 2",JA2]]},
+  ko:{native:"한국어",stamp:"한",speech:"ko-KR",long:4,name:{vi:"Tiếng Hàn",en:"Korean"},packs:[["TOPIK I · 1",KO1],["TOPIK I · 2",KO2]]}
+};
+const T={
+vi:{title:"Từ Rơi",score:"Điểm",lives:"Mạng",log:"Sổ từ trận này",pause:"Tạm dừng",resume:"Tiếp tục",both:"Cả hai",best:"Kỷ lục",sound:"Âm thanh",voice:"Phát âm",hint:"Hiện phiên âm",level:"Cấp độ",options:"Tùy chọn",ui:"Ngôn ngữ giao diện",learn:"Muốn học",start:"Bắt đầu",needVi:"Dùng giao diện Tiếng Việt",
+intro:"Từ vựng rơi từ trên xuống. Chọn đúng nghĩa tiếng Việt trước khi từ chạm đất. Đúng liên tiếp 5 từ thì hệ số điểm tăng.",
+paused:"Đang tạm dừng",pausedTxt:s=>`Điểm hiện tại: ${s}. Từ đang rơi sẽ đứng yên tới khi bạn quay lại.`,menu:"Về menu",
+over:"Hết lượt",newRec:"Kỷ lục mới",stats:(r,t,l,b)=>`Đúng ${r}/${t} từ · Kỷ lục ${l}: ${b}`,review:"Từ cần ôn lại",again:"Chơi lại",change:"Đổi ngôn ngữ, cấp độ",
+sum:(r,t)=>`Đúng ${r}/${t} từ`,empty:"Chưa có từ nào. Bấm Bắt đầu để chơi.",
+foot:"Học từ vựng tiếng Trung, Anh, Nhật, Hàn. Phát âm dùng giọng đọc có sẵn trong trình duyệt, nếu máy có giọng của ngôn ngữ đó. Phím 1–4 để chọn đáp án, Space để tạm dừng."},
+en:{title:"Word Drop",score:"Score",lives:"Lives",log:"Words this round",pause:"Pause",resume:"Resume",both:"Both",best:"Best",sound:"Sound",voice:"Voice",hint:"Show pronunciation",level:"Level",options:"Options",ui:"Interface language",learn:"I want to learn",start:"Start",needVi:"Needs the Vietnamese interface",
+intro:"Words fall from the sky. Pick the right English meaning before each one hits the ground. Every 5 correct in a row raises your multiplier.",
+paused:"Paused",pausedTxt:s=>`Current score: ${s}. The falling word waits until you come back.`,menu:"Main menu",
+over:"Game over",newRec:"New record",stats:(r,t,l,b)=>`${r}/${t} correct · ${l} best: ${b}`,review:"Words to review",again:"Play again",change:"Change language or level",
+sum:(r,t)=>`${r}/${t} correct`,empty:"No words yet. Press Start to play.",
+foot:"Learn Chinese, English, Japanese and Korean vocabulary. Pronunciation uses your browser's built-in voices, if your device has one for that language. Keys 1–4 pick an answer, Space pauses."}};
+const $=id=>document.getElementById(id);
+const stage=$("stage"),tile=$("tile"),hzEl=$("hz"),pyEl=$("py"),ans=$("answers"),ov=$("overlay"),logEl=$("log");
+const GROUND=46,MAXL=3;
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let nl="";try{nl=navigator.language||""}catch(e){}
+const P={ui:store.get("wd-ui")||(/^vi/i.test(nl)?"vi":"en"),learn:store.get("wd-learn")||"zh",level:store.get("wd-level")||"0",
+  sound:store.get("wd-sound")!=="0",voice:store.get("wd-voice")!=="0",hint:store.get("wd-hint")==="1"};
+if(!T[P.ui])P.ui="vi";if(!LANGS[P.learn])P.learn="zh";if(!["0","1","all"].includes(P.level))P.level="0";
+const fix=()=>{if(P.ui==="en"&&P.learn==="en")P.learn="zh"};fix();
+const t=k=>T[P.ui][k];
+const M=w=>P.ui==="en"?w[3]:w[2];
+const L=()=>LANGS[P.learn];
+const lvName=k=>k==="all"?t("both"):L().packs[+k][0];
+const lvWords=k=>k==="all"?L().packs[0][1].concat(L().packs[1][1]):L().packs[+k][1];
+let S={running:false,paused:false,lock:true},bag=[],pool=[];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const bestKey=k=>`wd-best-${P.learn}-${k}`;
+const best=k=>+(store.get(bestKey(k))||0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function applyLang(){
+  document.documentElement.lang=P.ui;document.title=t("title");
+  document.querySelectorAll("[data-t]").forEach(el=>{el.textContent=t(el.dataset.t)});
+  $("stamp").textContent=L().stamp;hzEl.lang=P.learn;
+}
+let ac=null;
+function beep(ok){if(!P.sound)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type=ok?"triangle":"sawtooth";o.frequency.setValueAtTime(ok?660:220,n);o.frequency.exponentialRampToValueAtTime(ok?990:130,n+(ok?.12:.25));g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(ok?.2:.1,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+.3);o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+.32)}catch(e){}}
+function speak(text){if(!P.voice)return;try{if(!("speechSynthesis" in window))return;const code=L().speech,u=new SpeechSynthesisUtterance(text);u.lang=code;u.rate=.85;const pre=code.slice(0,2);const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith(pre));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+
+const mult=()=>Math.min(5,1+Math.floor(Math.max(0,(S.combo||0)-1)/5));
+function hud(){
+  $("score").textContent=S.score||0;$("combo").textContent="x"+mult();
+  $("lives").innerHTML=Array.from({length:MAXL},(_,i)=>`<span class="lan${i<(S.lives??MAXL)?"":" off"}"></span>`).join("");
+  $("pauseBtn").textContent=S.paused?t("resume"):t("pause");$("pauseBtn").disabled=!S.running;
+}
+function placeholders(){ans.innerHTML=[1,2,3,4].map(i=>`<button class="opt" type="button" disabled><kbd>${i}</kbd><span>—</span></button>`).join("")}
+function renderAnswers(){ans.innerHTML=S.opts.map((o,i)=>`<button class="opt" type="button" data-i="${i}"><kbd>${i+1}</kbd><span>${esc(M(o))}</span></button>`).join("")}
+function nextWord(){if(!bag.length)bag=shuffle(pool.slice());let w=bag.pop();if(S.cur&&w===S.cur&&bag.length){bag.unshift(w);w=bag.pop()}return w}
+function options(w){return shuffle([w,...shuffle(pool.filter(x=>M(x)!==M(w))).slice(0,3)])}
+
+function place(p){
+  const sw=stage.clientWidth,tw=tile.offsetWidth,th=tile.offsetHeight;
+  const x=Math.max(8,Math.min(S.x,sw-tw-8));
+  const y=-th+p*(stage.clientHeight-GROUND-2);
+  const r=reduce?0:Math.sin(S.phase+p*9)*5;
+  tile.style.transform=`translate(${x}px,${y}px) rotate(${r}deg)`;
+}
+function newRound(){
+  S.cur=nextWord();S.opts=options(S.cur);S.elapsed=0;
+  hzEl.textContent=S.cur[0];pyEl.textContent=S.cur[1];
+  hzEl.classList.toggle("long",[...S.cur[0]].length>L().long);
+  tile.className="tile"+(P.hint?" show-py":"");tile.style.visibility="visible";
+  const tw=tile.offsetWidth;S.x=12+Math.random()*Math.max(0,stage.clientWidth-tw-24);S.phase=Math.random()*6;
+  place(0);renderAnswers();S.lock=false;
+}
+function start(){
+  pool=lvWords(P.level);bag=[];
+  S={running:true,paused:false,lock:true,score:0,combo:0,lives:MAXL,right:0,total:0,fall:7000,missed:[],cur:null};
+  logEl.innerHTML="";updateSum();ov.hidden=true;applyLang();hud();newRound();
+}
+function flash(text){
+  const f=document.createElement("div");f.className="flash";f.textContent=text;
+  const m=/translate\(([-\d.]+)px,([-\d.]+)px\)/.exec(tile.style.transform)||[0,0,0];
+  f.style.left=(+m[1]+tile.offsetWidth/2-20)+"px";f.style.top=(+m[2]-10)+"px";
+  stage.appendChild(f);setTimeout(()=>f.remove(),850);
+}
+function addLog(w,ok){
+  S.total++;
+  logEl.insertAdjacentHTML("afterbegin",`<li><span class="dot${ok?"":" no"}"></span><b lang="${P.learn}">${esc(w[0])}</b><i>${esc(w[1])}</i><span>${esc(M(w))}</span></li>`);
+  while(logEl.children.length>40)logEl.lastElementChild.remove();
+  updateSum();
+}
+function updateSum(){$("logSum").textContent=S.total?T[P.ui].sum(S.right,S.total):t("empty")}
+function choose(i){
+  if(!S.running||S.paused||S.lock||!S.opts[i])return;
+  const btns=ans.children,ci=S.opts.indexOf(S.cur);
+  if(i===ci){
+    S.lock=true;S.combo++;S.right++;const pts=10*mult();S.score+=pts;
+    btns[i].classList.add("good");tile.classList.add("hit","show-py");flash("+"+pts);
+    beep(true);speak(S.cur[0]);addLog(S.cur,true);
+    S.fall=Math.max(2400,7000-S.right*110);hud();setTimeout(newRound,650);
+  }else fail(i);
+}
+function fail(i){
+  S.lock=true;S.combo=0;S.lives--;
+  const btns=ans.children,ci=S.opts.indexOf(S.cur);
+  if(i>=0&&btns[i])btns[i].classList.add("bad");
+  if(btns[ci])btns[ci].classList.add("good");
+  tile.classList.add(i<0?"dropped":"miss","show-py");
+  beep(false);speak(S.cur[0]);
+  if(!S.missed.includes(S.cur))S.missed.push(S.cur);
+  addLog(S.cur,false);hud();
+  setTimeout(()=>{if(!S.running)return;S.lives<=0?gameOver():newRound()},1300);
+}
+
+function uiSeg(){return [["vi","Tiếng Việt"],["en","English"]].map(([k,l])=>`<button type="button" data-act="ui" data-v="${k}" aria-pressed="${k===P.ui}">${l}</button>`).join("")}
+function learnSeg(){return Object.entries(LANGS).map(([k,v])=>{const off=P.ui==="en"&&k==="en";return `<button type="button" data-act="learn" data-v="${k}" aria-pressed="${k===P.learn}"${off?" disabled":""}><span lang="${k}">${v.native}</span><small>${off?t("needVi"):v.name[P.ui]}</small></button>`}).join("")}
+function lvSeg(){return ["0","1","all"].map(k=>`<button type="button" data-act="lv" data-v="${k}" aria-pressed="${k===P.level}">${esc(lvName(k))}<small>${t("best")} ${best(k)}</small></button>`).join("")}
+function toggles(){return ["sound","voice","hint"].map(k=>`<button type="button" data-act="tg" data-k="${k}" aria-pressed="${P[k]}">${t(k)}</button>`).join("")}
+function showStart(){
+  S.running=false;S.paused=false;S.lock=true;tile.style.visibility="hidden";placeholders();applyLang();hud();updateSum();
+  ov.innerHTML=`<div class="card"><h2>${t("title")}</h2><p>${t("intro")}</p>
+  <div class="lbl">${t("learn")}</div><div class="seg two">${learnSeg()}</div>
+  <div class="lbl">${t("level")}</div><div class="seg">${lvSeg()}</div>
+  <div class="lbl">${t("ui")}</div><div class="seg two">${uiSeg()}</div>
+  <div class="lbl">${t("options")}</div><div class="tg">${toggles()}</div>
+  <button class="cta" type="button" data-act="start">${t("start")}</button></div>`;
+  ov.hidden=false;
+}
+function setPause(v){
+  if(!S.running)return;S.paused=v;hud();
+  if(v){ov.innerHTML=`<div class="card"><h2>${t("paused")}</h2><p>${T[P.ui].pausedTxt(S.score)}</p>
+  <div class="lbl">${t("options")}</div><div class="tg">${toggles()}</div>
+  <button class="cta" type="button" data-act="resume">${t("resume")}</button><button class="ghost" type="button" data-act="menu">${t("menu")}</button></div>`;ov.hidden=false}
+  else ov.hidden=true;
+}
+function gameOver(){
+  S.running=false;S.lock=true;hud();
+  const old=best(P.level),rec=S.score>old;if(rec)store.set(bestKey(P.level),S.score);
+  const miss=S.missed.map(w=>`<li><b lang="${P.learn}">${esc(w[0])}</b><i>${esc(w[1])}</i><span>${esc(M(w))}</span></li>`).join("");
+  ov.innerHTML=`<div class="card"><h2>${t("over")}</h2>
+  <div class="big">${S.score}${rec?`<span class="rec">${t("newRec")}</span>`:""}</div>
+  <p>${T[P.ui].stats(S.right,S.total,L().name[P.ui]+" "+lvName(P.level),Math.max(old,S.score))}</p>
+  ${miss?`<div class="lbl">${t("review")}</div><ul class="miss-list">${miss}</ul>`:""}
+  <button class="cta" type="button" data-act="start">${t("again")}</button><button class="ghost" type="button" data-act="menu">${t("change")}</button></div>`;
+  ov.hidden=false;
+}
+
+ov.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b||b.disabled)return;const a=b.dataset.act,v=b.dataset.v;
+  if(a==="start")start();
+  else if(a==="resume")setPause(false);
+  else if(a==="menu")showStart();
+  else if(a==="ui"){P.ui=v;fix();store.set("wd-ui",P.ui);store.set("wd-learn",P.learn);showStart()}
+  else if(a==="learn"){P.learn=v;store.set("wd-learn",v);showStart()}
+  else if(a==="lv"){P.level=v;store.set("wd-level",v);showStart()}
+  else if(a==="tg"){const k=b.dataset.k;P[k]=!P[k];store.set("wd-"+k,P[k]?"1":"0");b.setAttribute("aria-pressed",P[k]);if(k==="hint"&&S.running&&P.hint)tile.classList.add("show-py")}
+});
+ans.addEventListener("click",e=>{const b=e.target.closest(".opt[data-i]");if(b)choose(+b.dataset.i)});
+$("pauseBtn").addEventListener("click",()=>setPause(!S.paused));
+document.addEventListener("keydown",e=>{
+  if(e.key>="1"&&e.key<="4"){choose(+e.key-1);return}
+  if((e.key===" "||e.key==="Escape"||e.key==="p"||e.key==="P")&&S.running){e.preventDefault();setPause(!S.paused);return}
+  if(e.key==="Enter"&&!S.running&&!ov.hidden&&!e.target.closest("button")){e.preventDefault();start()}
+});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&S.running&&!S.paused)setPause(true)});
+let last=0;
+function loop(n){
+  const dt=last?Math.min(n-last,100):0;last=n;
+  if(S.running&&!S.paused&&!S.lock){S.elapsed+=dt;const p=S.elapsed/S.fall;place(Math.min(p,1));if(p>=1)fail(-1)}
+  requestAnimationFrame(loop);
+}
+const ro=new ResizeObserver(()=>{if(S.cur&&tile.style.visibility==="visible")place(Math.min(1,(S.elapsed||0)/(S.fall||7000)))});ro.observe(stage);
+try{if("speechSynthesis" in window)speechSynthesis.getVoices()}catch(e){}
+showStart();requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
