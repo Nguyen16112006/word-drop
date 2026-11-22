@@ -68,9 +68,11 @@ button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
 .opt.good{background:var(--good);border-color:var(--good);color:#fff;opacity:1}
 .opt.bad{background:var(--seal);border-color:var(--seal);color:#fff;opacity:1}
 .opt.good kbd,.opt.bad kbd{background:#ffffff33;color:#fff}
-.overlay{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:12px;background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(3px)}
+.overlay{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:12px;background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(3px)}
 .overlay[hidden]{display:none}
 .card{width:min(440px,100%);max-height:100%;overflow:auto;background:var(--panel);border-radius:16px;padding:22px;box-shadow:0 20px 40px -20px #0007;border:1px solid var(--line)}
+.card.wide{width:min(840px,100%)}
+@media(min-width:700px){.cg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;align-items:start}.cg>div:last-child>.lbl:first-child{margin-top:0}}
 .card h2{margin:0 0 6px;font-size:32px;line-height:1.05;text-wrap:balance}
 .card p{margin:0 0 14px;color:var(--muted)}
 .card p.keys{font-size:14px;margin-top:-6px}
@@ -309,12 +311,12 @@ function toggles(){return ["sound","voice","hint"].map(k=>`<button type="button"
 function showStart(){
   if(S.running)CG.game("gameplayStop");
   S.running=false;S.paused=false;S.lock=true;tile.style.visibility="hidden";placeholders();applyLang();hud();updateSum();
-  ov.innerHTML=`<div class="card"><h2>${t("title")}</h2><p>${t("intro")}</p><p class="keys">${t("keys")}</p>
+  ov.innerHTML=`<div class="card wide"><div class="cg"><div><h2>${t("title")}</h2><p>${t("intro")}</p><p class="keys">${t("keys")}</p>
+  <button class="cta" type="button" data-act="start">${t("start")}</button></div><div>
   <div class="lbl">${t("learn")}</div><div class="seg two">${learnSeg()}</div>
   <div class="lbl">${t("level")}</div><div class="seg">${lvSeg()}</div>
   <div class="lbl">${t("ui")}</div><div class="seg two">${uiSeg()}</div>
-  <div class="lbl">${t("options")}</div><div class="tg">${toggles()}</div>
-  <button class="cta" type="button" data-act="start">${t("start")}</button></div>`;
+  <div class="lbl">${t("options")}</div><div class="tg">${toggles()}</div></div></div></div>`;
   ov.hidden=false;
 }
 function setPause(v){
