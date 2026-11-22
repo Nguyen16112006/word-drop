@@ -24,7 +24,9 @@
 --paper:#fffcf2;--seal:#d23a2b;--sealdk:#a8291d;--good:#2b8a4c}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif;overflow-x:clip;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow-y:auto}
+main.layout{flex:1 1 auto;min-height:0;width:100%}
+main.layout>section{display:flex;flex-direction:column;min-height:0}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
 .top{background:var(--bar);color:#fff;padding:12px max(4vw,12px)}
@@ -41,9 +43,10 @@ button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
 .lan.off{background:#ffffff33;box-shadow:none}.lan.off::before{background:#ffffff44}
 .pbtn{min-height:44px;padding:0 16px;border-radius:10px;border:1.5px solid #ffffff66;background:#ffffff14;color:#fff;font-weight:600}
 .pbtn:hover{background:#ffffff26}
-.layout{max-width:1240px;margin:0 auto;padding:clamp(14px,3vw,32px) max(4vw,12px);display:grid;gap:24px;grid-template-columns:minmax(0,1fr)}
-@media(min-width:960px){.layout{grid-template-columns:minmax(0,1fr) 320px}}
-.stage{position:relative;height:clamp(360px,60vh,580px);border-radius:18px;overflow:hidden;background:linear-gradient(var(--sky1),var(--sky2));box-shadow:0 18px 40px -24px #0b2a1599,inset 0 0 0 1px var(--line);user-select:none}
+.layout{max-width:1240px;margin:0 auto;padding:clamp(10px,2vw,24px) max(3vw,10px);display:grid;gap:20px;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+@media(min-width:960px){.layout{grid-template-columns:minmax(0,1fr) 300px}}
+@media(max-width:959px){.log{display:none!important}}
+.stage{position:relative;flex:1 1 auto;min-height:220px;max-height:640px;border-radius:18px;overflow:hidden;background:linear-gradient(var(--sky1),var(--sky2));box-shadow:0 18px 40px -24px #0b2a1599,inset 0 0 0 1px var(--line);user-select:none}
 .bg{position:absolute;inset:0;width:100%;height:100%}
 .ground{position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(var(--grass) 0 7px,var(--ground) 7px);box-shadow:0 -6px 14px -6px #0004}
 .tile{position:absolute;left:0;top:0;z-index:2;min-width:96px;padding:12px 18px 12px;text-align:center;color:#1b1510;background:var(--paper);border-radius:6px;box-shadow:0 12px 20px -10px #0008,inset 0 0 0 2px var(--seal),inset 0 0 0 5px var(--paper),inset 0 0 0 6px #d23a2b55;will-change:transform;visibility:hidden}
@@ -70,6 +73,7 @@ button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
 .card{width:min(440px,100%);max-height:100%;overflow:auto;background:var(--panel);border-radius:16px;padding:22px;box-shadow:0 20px 40px -20px #0007;border:1px solid var(--line)}
 .card h2{margin:0 0 6px;font-size:32px;line-height:1.05;text-wrap:balance}
 .card p{margin:0 0 14px;color:var(--muted)}
+.card p.keys{font-size:14px;margin-top:-6px}
 .lbl{font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 6px}
 .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .seg button,.tg button{min-height:48px;border-radius:10px;border:2px solid var(--line);background:var(--bg);font-weight:600;line-height:1.2;padding:6px}
@@ -97,14 +101,14 @@ button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
 .miss-list b,.log b{font:700 20px/1.2 "Noto Serif SC",serif}
 .miss-list i,.log i{font-style:normal;color:var(--sealdk);font-size:14px}
 :root:not([data-theme=light]) .miss-list i,:root:not([data-theme=light]) .log i{color:light-dark(var(--sealdk),#ff8a7a)}
-.log{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;align-self:start}
+.log{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;align-self:start;max-height:100%;display:flex;flex-direction:column;min-height:0}
 .log h2{margin:0;font-size:20px}
 .log p{margin:2px 0 12px;color:var(--muted);font-size:14px}
-.log ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:520px;overflow:auto}
+.log ul{list-style:none;margin:0;padding:0;display:grid;align-content:start;gap:6px;overflow:auto;min-height:0}
 .log li{grid-template-columns:8px auto auto minmax(0,1fr)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--good);align-self:center}.dot.no{background:var(--seal)}
 .empty{color:var(--muted);font-size:14px;padding:10px 0}
-.foot{max-width:1240px;margin:0 auto;padding:0 max(4vw,12px) 28px;color:var(--muted);font-size:13px}
+.foot{display:none}
 @media(max-width:600px){.brand h1{font-size:22px}.hud{gap:6px 14px;width:100%}.pbtn{margin-left:auto}.hz{font-size:38px}.opt{font-size:16px;min-height:54px;padding:8px 10px;gap:8px}.card h2{font-size:28px}.big{font-size:44px}}
 @media(prefers-reduced-motion:reduce){.tile.hit,.tile.miss,.flash{animation:none}}
 </style>
@@ -184,13 +188,13 @@ const LANGS={
   ko:{native:"한국어",stamp:"한",speech:"ko-KR",long:4,name:{vi:"Tiếng Hàn",en:"Korean"},packs:[["TOPIK I · 1",KO1],["TOPIK I · 2",KO2]]}
 };
 const T={
-vi:{title:"Từ Rơi",score:"Điểm",lives:"Mạng",log:"Sổ từ trận này",pause:"Tạm dừng",resume:"Tiếp tục",both:"Cả hai",best:"Kỷ lục",sound:"Âm thanh",voice:"Phát âm",hint:"Hiện phiên âm",level:"Cấp độ",options:"Tùy chọn",ui:"Ngôn ngữ giao diện",learn:"Muốn học",start:"Bắt đầu",needVi:"Dùng giao diện Tiếng Việt",
+vi:{title:"Từ Rơi",score:"Điểm",lives:"Mạng",log:"Sổ từ trận này",pause:"Tạm dừng",resume:"Tiếp tục",both:"Cả hai",best:"Kỷ lục",sound:"Âm thanh",voice:"Phát âm",hint:"Hiện phiên âm",level:"Cấp độ",options:"Tùy chọn",ui:"Ngôn ngữ giao diện",learn:"Muốn học",start:"Bắt đầu",keys:"Chạm vào đáp án, hoặc bấm phím 1–4. Space để tạm dừng.",needVi:"Dùng giao diện Tiếng Việt",
 intro:"Từ vựng rơi từ trên xuống. Chọn đúng nghĩa tiếng Việt trước khi từ chạm đất. Đúng liên tiếp 5 từ thì hệ số điểm tăng.",
 paused:"Đang tạm dừng",pausedTxt:s=>`Điểm hiện tại: ${s}. Từ đang rơi sẽ đứng yên tới khi bạn quay lại.`,menu:"Về menu",
 over:"Hết lượt",newRec:"Kỷ lục mới",stats:(r,t,l,b)=>`Đúng ${r}/${t} từ · Kỷ lục ${l}: ${b}`,review:"Từ cần ôn lại",again:"Chơi lại",revive:"Xem quảng cáo để hồi sinh (+1 mạng)",change:"Đổi ngôn ngữ, cấp độ",
 sum:(r,t)=>`Đúng ${r}/${t} từ`,empty:"Chưa có từ nào. Bấm Bắt đầu để chơi.",
 foot:"Học từ vựng tiếng Trung, Anh, Nhật, Hàn. Phát âm dùng giọng đọc có sẵn trong trình duyệt, nếu máy có giọng của ngôn ngữ đó. Phím 1–4 để chọn đáp án, Space để tạm dừng."},
-en:{title:"Word Drop",score:"Score",lives:"Lives",log:"Words this round",pause:"Pause",resume:"Resume",both:"Both",best:"Best",sound:"Sound",voice:"Voice",hint:"Show pronunciation",level:"Level",options:"Options",ui:"Interface language",learn:"I want to learn",start:"Start",needVi:"Needs the Vietnamese interface",
+en:{title:"Word Drop",score:"Score",lives:"Lives",log:"Words this round",pause:"Pause",resume:"Resume",both:"Both",best:"Best",sound:"Sound",voice:"Voice",hint:"Show pronunciation",level:"Level",options:"Options",ui:"Interface language",learn:"I want to learn",start:"Start",keys:"Tap an answer or press keys 1–4. Space pauses.",needVi:"Needs the Vietnamese interface",
 intro:"Words fall from the sky. Pick the right English meaning before each one hits the ground. Every 5 correct in a row raises your multiplier.",
 paused:"Paused",pausedTxt:s=>`Current score: ${s}. The falling word waits until you come back.`,menu:"Main menu",
 over:"Game over",newRec:"New record",stats:(r,t,l,b)=>`${r}/${t} correct · ${l} best: ${b}`,review:"Words to review",again:"Play again",revive:"Watch an ad to revive (+1 life)",change:"Change language or level",
@@ -202,7 +206,7 @@ const GROUND=46,MAXL=3;
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let nl="";try{nl=navigator.language||""}catch(e){}
-const P={ui:store.get("wd-ui")||(/^vi/i.test(nl)?"vi":"en"),learn:store.get("wd-learn")||"zh",level:store.get("wd-level")||"0",
+const P={ui:store.get("wd-ui")||"en",learn:store.get("wd-learn")||"zh",level:store.get("wd-level")||"0",
   sound:store.get("wd-sound")!=="0",voice:store.get("wd-voice")!=="0",hint:store.get("wd-hint")==="1"};
 if(!T[P.ui])P.ui="vi";if(!LANGS[P.learn])P.learn="zh";if(!["0","1","all"].includes(P.level))P.level="0";
 const fix=()=>{if(P.ui==="en"&&P.learn==="en")P.learn="zh"};fix();
@@ -305,7 +309,7 @@ function toggles(){return ["sound","voice","hint"].map(k=>`<button type="button"
 function showStart(){
   if(S.running)CG.game("gameplayStop");
   S.running=false;S.paused=false;S.lock=true;tile.style.visibility="hidden";placeholders();applyLang();hud();updateSum();
-  ov.innerHTML=`<div class="card"><h2>${t("title")}</h2><p>${t("intro")}</p>
+  ov.innerHTML=`<div class="card"><h2>${t("title")}</h2><p>${t("intro")}</p><p class="keys">${t("keys")}</p>
   <div class="lbl">${t("learn")}</div><div class="seg two">${learnSeg()}</div>
   <div class="lbl">${t("level")}</div><div class="seg">${lvSeg()}</div>
   <div class="lbl">${t("ui")}</div><div class="seg two">${uiSeg()}</div>
