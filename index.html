@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Từ Rơi</title>
+<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&family=Noto+Serif+SC:wght@600;700&family=Noto+Serif+JP:wght@600;700&family=Noto+Serif+KR:wght@600;700&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
@@ -186,13 +187,13 @@ const T={
 vi:{title:"Từ Rơi",score:"Điểm",lives:"Mạng",log:"Sổ từ trận này",pause:"Tạm dừng",resume:"Tiếp tục",both:"Cả hai",best:"Kỷ lục",sound:"Âm thanh",voice:"Phát âm",hint:"Hiện phiên âm",level:"Cấp độ",options:"Tùy chọn",ui:"Ngôn ngữ giao diện",learn:"Muốn học",start:"Bắt đầu",needVi:"Dùng giao diện Tiếng Việt",
 intro:"Từ vựng rơi từ trên xuống. Chọn đúng nghĩa tiếng Việt trước khi từ chạm đất. Đúng liên tiếp 5 từ thì hệ số điểm tăng.",
 paused:"Đang tạm dừng",pausedTxt:s=>`Điểm hiện tại: ${s}. Từ đang rơi sẽ đứng yên tới khi bạn quay lại.`,menu:"Về menu",
-over:"Hết lượt",newRec:"Kỷ lục mới",stats:(r,t,l,b)=>`Đúng ${r}/${t} từ · Kỷ lục ${l}: ${b}`,review:"Từ cần ôn lại",again:"Chơi lại",change:"Đổi ngôn ngữ, cấp độ",
+over:"Hết lượt",newRec:"Kỷ lục mới",stats:(r,t,l,b)=>`Đúng ${r}/${t} từ · Kỷ lục ${l}: ${b}`,review:"Từ cần ôn lại",again:"Chơi lại",revive:"Xem quảng cáo để hồi sinh (+1 mạng)",change:"Đổi ngôn ngữ, cấp độ",
 sum:(r,t)=>`Đúng ${r}/${t} từ`,empty:"Chưa có từ nào. Bấm Bắt đầu để chơi.",
 foot:"Học từ vựng tiếng Trung, Anh, Nhật, Hàn. Phát âm dùng giọng đọc có sẵn trong trình duyệt, nếu máy có giọng của ngôn ngữ đó. Phím 1–4 để chọn đáp án, Space để tạm dừng."},
 en:{title:"Word Drop",score:"Score",lives:"Lives",log:"Words this round",pause:"Pause",resume:"Resume",both:"Both",best:"Best",sound:"Sound",voice:"Voice",hint:"Show pronunciation",level:"Level",options:"Options",ui:"Interface language",learn:"I want to learn",start:"Start",needVi:"Needs the Vietnamese interface",
 intro:"Words fall from the sky. Pick the right English meaning before each one hits the ground. Every 5 correct in a row raises your multiplier.",
 paused:"Paused",pausedTxt:s=>`Current score: ${s}. The falling word waits until you come back.`,menu:"Main menu",
-over:"Game over",newRec:"New record",stats:(r,t,l,b)=>`${r}/${t} correct · ${l} best: ${b}`,review:"Words to review",again:"Play again",change:"Change language or level",
+over:"Game over",newRec:"New record",stats:(r,t,l,b)=>`${r}/${t} correct · ${l} best: ${b}`,review:"Words to review",again:"Play again",revive:"Watch an ad to revive (+1 life)",change:"Change language or level",
 sum:(r,t)=>`${r}/${t} correct`,empty:"No words yet. Press Start to play.",
 foot:"Learn Chinese, English, Japanese and Korean vocabulary. Pronunciation uses your browser's built-in voices, if your device has one for that language. Keys 1–4 pick an answer, Space pauses."}};
 const $=id=>document.getElementById(id);
@@ -221,9 +222,15 @@ function applyLang(){
   document.querySelectorAll("[data-t]").forEach(el=>{el.textContent=t(el.dataset.t)});
   $("stamp").textContent=L().stamp;hzEl.lang=P.learn;
 }
+const CG={ok:false,adOn:false,
+  async init(){try{const sdk=window.CrazyGames&&window.CrazyGames.SDK;if(!sdk)return;await sdk.init();this.ok=sdk.environment==="crazygames"||sdk.environment==="local"}catch(e){this.ok=false}},
+  game(fn){if(!this.ok)return;try{window.CrazyGames.SDK.game[fn]()}catch(e){}},
+  ad(type){return new Promise(res=>{if(!this.ok)return res(false);
+    const done=ok=>{this.adOn=false;res(ok)};
+    try{window.CrazyGames.SDK.ad.requestAd(type,{adStarted:()=>{this.adOn=true;try{speechSynthesis.cancel()}catch(e){}},adFinished:()=>done(true),adError:()=>done(false)})}catch(e){done(false)}})}};
 let ac=null;
-function beep(ok){if(!P.sound)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type=ok?"triangle":"sawtooth";o.frequency.setValueAtTime(ok?660:220,n);o.frequency.exponentialRampToValueAtTime(ok?990:130,n+(ok?.12:.25));g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(ok?.2:.1,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+.3);o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+.32)}catch(e){}}
-function speak(text){if(!P.voice)return;try{if(!("speechSynthesis" in window))return;const code=L().speech,u=new SpeechSynthesisUtterance(text);u.lang=code;u.rate=.85;const pre=code.slice(0,2);const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith(pre));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function beep(ok){if(!P.sound||CG.adOn)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type=ok?"triangle":"sawtooth";o.frequency.setValueAtTime(ok?660:220,n);o.frequency.exponentialRampToValueAtTime(ok?990:130,n+(ok?.12:.25));g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(ok?.2:.1,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+.3);o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+.32)}catch(e){}}
+function speak(text){if(!P.voice||CG.adOn)return;try{if(!("speechSynthesis" in window))return;const code=L().speech,u=new SpeechSynthesisUtterance(text);u.lang=code;u.rate=.85;const pre=code.slice(0,2);const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith(pre));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 
 const mult=()=>Math.min(5,1+Math.floor(Math.max(0,(S.combo||0)-1)/5));
 function hud(){
@@ -253,7 +260,7 @@ function newRound(){
 }
 function start(){
   pool=lvWords(P.level);bag=[];
-  S={running:true,paused:false,lock:true,score:0,combo:0,lives:MAXL,right:0,total:0,fall:7000,missed:[],cur:null};
+  S={running:true,paused:false,lock:true,score:0,combo:0,lives:MAXL,right:0,total:0,fall:7000,missed:[],cur:null,revived:false};CG.game("gameplayStart");
   logEl.innerHTML="";updateSum();ov.hidden=true;applyLang();hud();newRound();
 }
 function flash(text){
@@ -296,6 +303,7 @@ function learnSeg(){return Object.entries(LANGS).map(([k,v])=>{const off=P.ui===
 function lvSeg(){return ["0","1","all"].map(k=>`<button type="button" data-act="lv" data-v="${k}" aria-pressed="${k===P.level}">${esc(lvName(k))}<small>${t("best")} ${best(k)}</small></button>`).join("")}
 function toggles(){return ["sound","voice","hint"].map(k=>`<button type="button" data-act="tg" data-k="${k}" aria-pressed="${P[k]}">${t(k)}</button>`).join("")}
 function showStart(){
+  if(S.running)CG.game("gameplayStop");
   S.running=false;S.paused=false;S.lock=true;tile.style.visibility="hidden";placeholders();applyLang();hud();updateSum();
   ov.innerHTML=`<div class="card"><h2>${t("title")}</h2><p>${t("intro")}</p>
   <div class="lbl">${t("learn")}</div><div class="seg two">${learnSeg()}</div>
@@ -306,27 +314,29 @@ function showStart(){
   ov.hidden=false;
 }
 function setPause(v){
-  if(!S.running)return;S.paused=v;hud();
+  if(!S.running)return;S.paused=v;hud();CG.game(v?"gameplayStop":"gameplayStart");
   if(v){ov.innerHTML=`<div class="card"><h2>${t("paused")}</h2><p>${T[P.ui].pausedTxt(S.score)}</p>
   <div class="lbl">${t("options")}</div><div class="tg">${toggles()}</div>
   <button class="cta" type="button" data-act="resume">${t("resume")}</button><button class="ghost" type="button" data-act="menu">${t("menu")}</button></div>`;ov.hidden=false}
   else ov.hidden=true;
 }
 function gameOver(){
-  S.running=false;S.lock=true;hud();
-  const old=best(P.level),rec=S.score>old;if(rec)store.set(bestKey(P.level),S.score);
+  S.running=false;S.lock=true;hud();CG.game("gameplayStop");
+  const old=best(P.level),rec=S.score>old;if(rec){store.set(bestKey(P.level),S.score);if(old>0)CG.game("happytime")}
   const miss=S.missed.map(w=>`<li><b lang="${P.learn}">${esc(w[0])}</b><i>${esc(w[1])}</i><span>${esc(M(w))}</span></li>`).join("");
   ov.innerHTML=`<div class="card"><h2>${t("over")}</h2>
   <div class="big">${S.score}${rec?`<span class="rec">${t("newRec")}</span>`:""}</div>
   <p>${T[P.ui].stats(S.right,S.total,L().name[P.ui]+" "+lvName(P.level),Math.max(old,S.score))}</p>
   ${miss?`<div class="lbl">${t("review")}</div><ul class="miss-list">${miss}</ul>`:""}
-  <button class="cta" type="button" data-act="start">${t("again")}</button><button class="ghost" type="button" data-act="menu">${t("change")}</button></div>`;
+  ${CG.ok&&!S.revived?`<button class="cta" type="button" data-act="revive">${t("revive")}</button><button class="ghost" type="button" data-act="again">${t("again")}</button>`:`<button class="cta" type="button" data-act="again">${t("again")}</button>`}<button class="ghost" type="button" data-act="menu">${t("change")}</button></div>`;
   ov.hidden=false;
 }
 
 ov.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b||b.disabled)return;const a=b.dataset.act,v=b.dataset.v;
   if(a==="start")start();
+  else if(a==="again"){b.disabled=true;CG.ad("midgame").then(start)}
+  else if(a==="revive"){b.disabled=true;CG.ad("rewarded").then(ok=>{if(ok){S.revived=true;S.running=true;S.paused=false;S.lives=1;S.combo=0;ov.hidden=true;hud();CG.game("gameplayStart");newRound()}else{b.disabled=false;b.textContent="—";b.hidden=true}})}
   else if(a==="resume")setPause(false);
   else if(a==="menu")showStart();
   else if(a==="ui"){P.ui=v;fix();store.set("wd-ui",P.ui);store.set("wd-learn",P.learn);showStart()}
@@ -350,7 +360,8 @@ function loop(n){
 }
 const ro=new ResizeObserver(()=>{if(S.cur&&tile.style.visibility==="visible")place(Math.min(1,(S.elapsed||0)/(S.fall||7000)))});ro.observe(stage);
 try{if("speechSynthesis" in window)speechSynthesis.getVoices()}catch(e){}
-showStart();requestAnimationFrame(loop);
+CG.game("loadingStart");showStart();requestAnimationFrame(loop);
+CG.init().then(()=>{CG.game("loadingStop");if(!S.running&&!ov.hidden&&ov.querySelector('[data-act="start"]'))showStart()});
 }
 </script>
 </body>
