@@ -7,7 +7,7 @@ A browser game for learning **Chinese, English, Japanese and Korean** vocabulary
 **Chơi ngay / Play:** https://nguyen16112006.github.io/word-drop/
 
 ## Tính năng / Features
-- 4 ngôn ngữ để học: Trung (HSK 1–2), Anh (A1–A2), Nhật (N5), Hàn (TOPIK I)
+- 4 ngôn ngữ để học: Trung (HSK 1–2), Anh (6 cấp A1–C2, 240 từ), Nhật (N5), Hàn (TOPIK I)
 - Giao diện Tiếng Việt hoặc English
 - Phiên âm (pinyin, IPA, romaji, romanization) và phát âm bằng giọng đọc của trình duyệt
 - Combo, tốc độ tăng dần, 3 mạng, kỷ lục theo từng ngôn ngữ và cấp độ
