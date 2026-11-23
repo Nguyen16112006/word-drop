@@ -51,7 +51,7 @@ button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
 .stage{position:relative;flex:1 1 auto;min-height:220px;max-height:640px;border-radius:18px;overflow:hidden;background:linear-gradient(var(--sky1),var(--sky2));box-shadow:0 18px 40px -24px #0b2a1599,inset 0 0 0 1px var(--line);user-select:none}
 .bg{position:absolute;inset:0;width:100%;height:100%}
 .ground{position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(var(--grass) 0 7px,var(--ground) 7px);box-shadow:0 -6px 14px -6px #0004}
-.tile{position:absolute;left:0;top:0;z-index:2;min-width:96px;padding:12px 18px 12px;text-align:center;color:#1b1510;background:var(--paper);border-radius:6px;box-shadow:0 12px 20px -10px #0008,inset 0 0 0 2px var(--seal),inset 0 0 0 5px var(--paper),inset 0 0 0 6px #d23a2b55;will-change:transform;visibility:hidden}
+.tile{position:absolute;left:0;top:0;z-index:4;min-width:96px;padding:12px 18px 12px;text-align:center;color:#1b1510;background:var(--paper);border-radius:6px;box-shadow:0 12px 20px -10px #0008,inset 0 0 0 2px var(--seal),inset 0 0 0 5px var(--paper),inset 0 0 0 6px #d23a2b55;will-change:transform;visibility:hidden}
 .tile::before{content:"";position:absolute;left:50%;top:-26px;width:1.5px;height:26px;background:#5b4a35}
 .tile::after{content:"";position:absolute;left:calc(50% - 4px);top:6px;width:8px;height:8px;border-radius:50%;background:var(--sky2);box-shadow:inset 0 1px 2px #0005}
 .hz{font:700 44px/1.15 "Noto Serif SC",serif;margin-top:8px;white-space:nowrap}
@@ -115,7 +115,24 @@ button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--good);align-self:center}.dot.no{background:var(--seal)}
 .empty{color:var(--muted);font-size:14px;padding:10px 0}
 .foot{display:none}
-@media(max-width:600px){.brand h1{font-size:22px}.hud{gap:6px 14px;width:100%}.pbtn{margin-left:auto}.hz{font-size:38px}.opt{font-size:16px;min-height:54px;padding:8px 10px;gap:8px}.card h2{font-size:28px}.big{font-size:44px}}
+@media(max-width:600px){.brand h1{font-size:22px}.hud{gap:6px 12px;width:100%;flex-wrap:nowrap}.pbtn{padding:0 10px;font-size:14px;flex:none}#fiftyBtn{margin-left:auto}.hz{font-size:38px}.opt{font-size:16px;min-height:54px;padding:8px 10px;gap:8px}.card h2{font-size:28px}.big{font-size:44px}}
+.sbar{position:absolute;left:12px;top:12px;z-index:2;display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:99px;background:#0f2a1ad9;color:#fff;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.sbar[hidden],.tut[hidden]{display:none}
+.prog{width:84px;height:8px;border-radius:4px;background:#ffffff33;overflow:hidden}.prog i{display:block;height:100%;width:0;background:#f2c14e;transition:width .3s}
+.tile.gold{background:#fff1bf;box-shadow:0 0 0 3px #f2c14e,0 0 26px 6px #f2c14eaa,0 12px 20px -10px #0008}
+.spark{position:absolute;z-index:4;width:9px;height:9px;border-radius:50%;pointer-events:none;animation:spark .7s ease-out forwards}
+@keyframes spark{to{translate:var(--dx) var(--dy);scale:.2;opacity:0}}
+.stage.shake{animation:shake .35s}
+.opt.gone{visibility:hidden}
+.opt.pulse{border-color:var(--seal);animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px #d23a2b44}}
+.tut{position:absolute;left:50%;bottom:58px;translate:-50% 0;z-index:4;display:flex;gap:10px;align-items:center;background:var(--panel);color:var(--ink);padding:10px 12px 10px 14px;border-radius:12px;box-shadow:0 10px 24px -12px #0009;font-weight:600;font-size:15px;width:max-content;max-width:calc(100% - 24px)}
+.tut button{flex:none;min-height:36px;padding:0 12px;border-radius:8px;border:1.5px solid var(--line);background:transparent;font-weight:600}
+.stars{display:flex;gap:12px;justify-content:center;margin:8px 0 12px}
+.star{width:52px;height:52px;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:var(--line)}
+.star.on{background:#f2c14e;animation:pop .5s backwards}.star.on:nth-child(2){animation-delay:.15s}.star.on:nth-child(3){animation-delay:.3s}
+#fiftyBtn:disabled{opacity:.45;cursor:default}
+@media(prefers-reduced-motion:reduce){.spark,.stage.shake,.opt.pulse,.star.on{animation:none}}
 @media(prefers-reduced-motion:reduce){.tile.hit,.tile.miss,.flash{animation:none}}
 </style>
 </head>
@@ -126,6 +143,7 @@ button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
     <div class="stat"><small data-t="score">Điểm</small><b id="score">0</b></div>
     <div class="stat"><small>Combo</small><b id="combo">x1</b></div>
     <div class="stat"><small data-t="lives">Mạng</small><div class="lives" id="lives"></div></div>
+    <button class="pbtn" id="fiftyBtn" type="button">50/50</button>
     <button class="pbtn" id="pauseBtn" type="button">Tạm dừng</button>
   </div>
 </div></header>
@@ -158,6 +176,8 @@ button:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
         </g>
         <g fill="var(--b2)"><use href="#stalk" x="62" y="30"/><use href="#stalk" x="352" y="10"/></g>
       </svg>
+      <div class="sbar" id="sbar" hidden><b id="stageLbl"></b><div class="prog"><i id="prog"></i></div></div>
+      <div class="tut" id="tut" hidden><span id="tutTxt"></span><button type="button" id="tutSkip"></button></div>
       <div class="tile" id="tile"><div class="hz" id="hz" lang="zh"></div><div class="py" id="py"></div></div>
       <div class="ground"></div>
       <div class="overlay" id="overlay"></div>
@@ -198,21 +218,21 @@ const LANGS={
   ko:{native:"한국어",stamp:"한",speech:"ko-KR",long:4,name:{vi:"Tiếng Hàn",en:"Korean"},packs:[["TOPIK I · 1",KO1],["TOPIK I · 2",KO2]]}
 };
 const T={
-vi:{title:"Từ Rơi",score:"Điểm",lives:"Mạng",log:"Sổ từ trận này",pause:"Tạm dừng",resume:"Tiếp tục",both:"Cả hai",all:"Tất cả",best:"Kỷ lục",sound:"Âm thanh",voice:"Phát âm",hint:"Hiện phiên âm",level:"Cấp độ",options:"Tùy chọn",ui:"Ngôn ngữ giao diện",learn:"Muốn học",start:"Bắt đầu",keys:"Chạm vào đáp án, hoặc bấm phím 1–4. Space để tạm dừng.",needVi:"Dùng giao diện Tiếng Việt",
-intro:"Từ vựng rơi từ trên xuống. Chọn đúng nghĩa tiếng Việt trước khi từ chạm đất. Đúng liên tiếp 5 từ thì hệ số điểm tăng.",
+vi:{title:"Từ Rơi",score:"Điểm",lives:"Mạng",log:"Sổ từ trận này",pause:"Tạm dừng",resume:"Tiếp tục",both:"Cả hai",all:"Tất cả",best:"Kỷ lục",sound:"Âm thanh",voice:"Phát âm",hint:"Hiện phiên âm",level:"Cấp độ",options:"Tùy chọn",ui:"Ngôn ngữ giao diện",learn:"Muốn học",start:"Bắt đầu",stage:"Màn",cleared:n=>`Qua màn ${n}!`,next:"Màn tiếp theo",bonus:(p,l)=>`+${p} điểm thưởng · +1 lượt 50/50${l?" · +1 mạng":""}`,tut:"Chạm vào nghĩa đúng trước khi từ chạm đất!",skip:"Bỏ qua",reached:n=>`Đến màn ${n}`,keys:"Chạm vào đáp án hoặc bấm phím 1–4. H: dùng 50/50. Space: tạm dừng.",needVi:"Dùng giao diện Tiếng Việt",
+intro:"Từ vựng rơi từ trên xuống. Chọn đúng nghĩa tiếng Việt trước khi từ chạm đất. Bắt đúng 10 từ để qua màn, mỗi màn rơi nhanh hơn. Từ vàng được điểm x3.",
 paused:"Đang tạm dừng",pausedTxt:s=>`Điểm hiện tại: ${s}. Từ đang rơi sẽ đứng yên tới khi bạn quay lại.`,menu:"Về menu",
 over:"Hết lượt",newRec:"Kỷ lục mới",stats:(r,t,l,b)=>`Đúng ${r}/${t} từ · Kỷ lục ${l}: ${b}`,review:"Từ cần ôn lại",again:"Chơi lại",revive:"Xem quảng cáo để hồi sinh (+1 mạng)",change:"Đổi ngôn ngữ, cấp độ",
 sum:(r,t)=>`Đúng ${r}/${t} từ`,empty:"Chưa có từ nào. Bấm Bắt đầu để chơi.",
 foot:"Học từ vựng tiếng Trung, Anh, Nhật, Hàn. Phát âm dùng giọng đọc có sẵn trong trình duyệt, nếu máy có giọng của ngôn ngữ đó. Phím 1–4 để chọn đáp án, Space để tạm dừng."},
-en:{title:"Word Drop",score:"Score",lives:"Lives",log:"Words this round",pause:"Pause",resume:"Resume",both:"Both",all:"All",best:"Best",sound:"Sound",voice:"Voice",hint:"Show pronunciation",level:"Level",options:"Options",ui:"Interface language",learn:"I want to learn",start:"Start",keys:"Tap an answer or press keys 1–4. Space pauses.",needVi:"Needs the Vietnamese interface",
-intro:"Words fall from the sky. Pick the right English meaning before each one hits the ground. Every 5 correct in a row raises your multiplier.",
+en:{title:"Word Drop",score:"Score",lives:"Lives",log:"Words this round",pause:"Pause",resume:"Resume",both:"Both",all:"All",best:"Best",sound:"Sound",voice:"Voice",hint:"Show pronunciation",level:"Level",options:"Options",ui:"Interface language",learn:"I want to learn",start:"Start",stage:"Stage",cleared:n=>`Stage ${n} clear!`,next:"Next stage",bonus:(p,l)=>`+${p} bonus · +1 50/50${l?" · +1 life":""}`,tut:"Tap the matching meaning before the word lands!",skip:"Skip",reached:n=>`Reached stage ${n}`,keys:"Tap an answer or press 1–4. H uses 50/50. Space pauses.",needVi:"Needs the Vietnamese interface",
+intro:"Words fall from the sky. Pick the right English meaning before each one hits the ground. Catch 10 words to clear a stage; each stage falls faster. Golden words score x3.",
 paused:"Paused",pausedTxt:s=>`Current score: ${s}. The falling word waits until you come back.`,menu:"Main menu",
 over:"Game over",newRec:"New record",stats:(r,t,l,b)=>`${r}/${t} correct · ${l} best: ${b}`,review:"Words to review",again:"Play again",revive:"Watch an ad to revive (+1 life)",change:"Change language or level",
 sum:(r,t)=>`${r}/${t} correct`,empty:"No words yet. Press Start to play.",
 foot:"Learn Chinese, English, Japanese and Korean vocabulary. Pronunciation uses your browser's built-in voices, if your device has one for that language. Keys 1–4 pick an answer, Space pauses."}};
 const $=id=>document.getElementById(id);
 const stage=$("stage"),tile=$("tile"),hzEl=$("hz"),pyEl=$("py"),ans=$("answers"),ov=$("overlay"),logEl=$("log");
-const GROUND=46,MAXL=3;
+const GROUND=46,MAXL=3,GOAL=10;
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let nl="";try{nl=navigator.language||""}catch(e){}
@@ -248,14 +268,22 @@ const CG={ok:false,adOn:false,
     const done=ok=>{this.adOn=false;res(ok)};
     try{window.CrazyGames.SDK.ad.requestAd(type,{adStarted:()=>{this.adOn=true;try{speechSynthesis.cancel()}catch(e){}},adFinished:()=>done(true),adError:()=>done(false)})}catch(e){done(false)}})}};
 let ac=null;
-function beep(ok){if(!P.sound||CG.adOn)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type=ok?"triangle":"sawtooth";o.frequency.setValueAtTime(ok?660:220,n);o.frequency.exponentialRampToValueAtTime(ok?990:130,n+(ok?.12:.25));g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(ok?.2:.1,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+.3);o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+.32)}catch(e){}}
+function tone(f,d,type,vol,when){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime+(when||0);o.type=type;o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(vol,n+.015);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+d+.02)}catch(e){}}
+function beep(kind){if(!P.sound||CG.adOn)return;
+  if(kind===true||kind==="ok"){tone(880,.14,"triangle",.16);tone(1320,.18,"triangle",.12,.07)}
+  else if(kind==="gold"){[784,988,1175,1568].forEach((f,i)=>tone(f,.16,"triangle",.13,i*.06))}
+  else if(kind==="clear"){[523,659,784,1047].forEach((f,i)=>tone(f,.22,"triangle",.15,i*.12))}
+  else if(kind==="fifty"){tone(660,.1,"sine",.12);tone(440,.12,"sine",.1,.08)}
+  else{tone(196,.3,"sawtooth",.08);tone(147,.3,"sine",.12,.05)}}
 function speak(text){if(!P.voice||CG.adOn)return;try{if(!("speechSynthesis" in window))return;const code=L().speech,u=new SpeechSynthesisUtterance(text);u.lang=code;u.rate=.85;const pre=code.slice(0,2);const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith(pre));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 
 const mult=()=>Math.min(5,1+Math.floor(Math.max(0,(S.combo||0)-1)/5));
 function hud(){
   $("score").textContent=S.score||0;$("combo").textContent="x"+mult();
   $("lives").innerHTML=Array.from({length:MAXL},(_,i)=>`<span class="lan${i<(S.lives??MAXL)?"":" off"}"></span>`).join("");
-  $("pauseBtn").textContent=S.paused?t("resume"):t("pause");$("pauseBtn").disabled=!S.running;
+  $("pauseBtn").textContent=S.paused?t("resume"):t("pause");$("pauseBtn").disabled=!S.running||!!S.between;
+  const fb=$("fiftyBtn");fb.textContent="50/50 ×"+(S.fifty||0);fb.disabled=!S.running||!(S.fifty>0)||!!S.used50||!!S.lock||!!S.paused;
+  $("sbar").hidden=!S.running;if(S.running){$("stageLbl").textContent=`${t("stage")} ${S.stage} · ${S.hits}/${GOAL}`;$("prog").style.width=(S.hits/GOAL*100)+"%"}
 }
 function placeholders(){ans.innerHTML=[1,2,3,4].map(i=>`<button class="opt" type="button" disabled><kbd>${i}</kbd><span>—</span></button>`).join("")}
 function renderAnswers(){ans.innerHTML=S.opts.map((o,i)=>`<button class="opt" type="button" data-i="${i}"><kbd>${i+1}</kbd><span>${esc(M(o))}</span></button>`).join("")}
@@ -267,25 +295,28 @@ function place(p){
   const x=Math.max(8,Math.min(S.x,sw-tw-8));
   const y=-th+p*(stage.clientHeight-GROUND-2);
   const r=reduce?0:Math.sin(S.phase+p*9)*5;
-  tile.style.transform=`translate(${x}px,${y}px) rotate(${r}deg)`;
+  S.tx=x;S.ty=y;tile.style.transform=`translate(${x}px,${y}px) rotate(${r}deg)`;
 }
 function newRound(){
   S.cur=nextWord();S.opts=options(S.cur);S.elapsed=0;
   hzEl.textContent=S.cur[0];pyEl.textContent=S.cur[1];
   hzEl.classList.toggle("long",[...S.cur[0]].length>L().long);
-  tile.className="tile"+(P.hint?" show-py":"");tile.style.visibility="visible";
+  S.gold=!S.tut&&S.stage>=2&&Math.random()<.15;S.used50=false;
+  S.fall=S.tut>0?11000:Math.max(2300,7400-(S.stage-1)*650-S.hits*45);
+  tile.className="tile"+(P.hint?" show-py":"")+(S.gold?" gold":"");tile.style.visibility="visible";
   const tw=tile.offsetWidth;S.x=12+Math.random()*Math.max(0,stage.clientWidth-tw-24);S.phase=Math.random()*6;
   place(0);renderAnswers();S.lock=false;
+  if(S.tut>0){const c=ans.children[S.opts.indexOf(S.cur)];if(c)c.classList.add("pulse")}
+  hud();
 }
 function start(){
   pool=lvWords(P.level);bag=[];
-  S={running:true,paused:false,lock:true,score:0,combo:0,lives:MAXL,right:0,total:0,fall:7000,missed:[],cur:null,revived:false};CG.game("gameplayStart");
-  logEl.innerHTML="";updateSum();ov.hidden=true;applyLang();hud();newRound();
+  S={running:true,paused:false,lock:true,score:0,combo:0,lives:MAXL,right:0,total:0,fall:7000,missed:[],cur:null,revived:false,stage:1,hits:0,lost:0,fifty:1,between:false,tut:store.get("wd-tut")?0:3};CG.game("gameplayStart");
+  logEl.innerHTML="";updateSum();ov.hidden=true;applyLang();showTut();hud();newRound();
 }
 function flash(text){
   const f=document.createElement("div");f.className="flash";f.textContent=text;
-  const m=/translate\(([-\d.]+)px,([-\d.]+)px\)/.exec(tile.style.transform)||[0,0,0];
-  f.style.left=(+m[1]+tile.offsetWidth/2-20)+"px";f.style.top=(+m[2]-10)+"px";
+  f.style.left=((S.tx||0)+tile.offsetWidth/2-20)+"px";f.style.top=((S.ty||0)-10)+"px";
   stage.appendChild(f);setTimeout(()=>f.remove(),850);
 }
 function addLog(w,ok){
@@ -299,15 +330,17 @@ function choose(i){
   if(!S.running||S.paused||S.lock||!S.opts[i])return;
   const btns=ans.children,ci=S.opts.indexOf(S.cur);
   if(i===ci){
-    S.lock=true;S.combo++;S.right++;const pts=10*mult();S.score+=pts;
-    btns[i].classList.add("good");tile.classList.add("hit","show-py");flash("+"+pts);
-    beep(true);speak(S.cur[0]);addLog(S.cur,true);
-    S.fall=Math.max(2400,7000-S.right*110);hud();setTimeout(newRound,650);
+    S.lock=true;S.combo++;S.right++;S.hits++;const pts=10*mult()*(S.gold?3:1);S.score+=pts;
+    btns[i].classList.add("good");tile.classList.add("hit","show-py");flash(S.gold?`+${pts} ×3`:"+"+pts);sparks(S.gold);
+    beep(S.gold?"gold":"ok");speak(S.cur[0]);addLog(S.cur,true);
+    if(S.tut>0){S.tut--;if(!S.tut)endTut()}
+    hud();setTimeout(S.hits>=GOAL?stageClear:newRound,S.hits>=GOAL?750:650);
   }else fail(i);
 }
 function fail(i){
-  S.lock=true;S.combo=0;S.lives--;
+  S.lock=true;S.combo=0;if(!S.tut){S.lives--;S.lost++}
   const btns=ans.children,ci=S.opts.indexOf(S.cur);
+  if(!reduce){stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake")}
   if(i>=0&&btns[i])btns[i].classList.add("bad");
   if(btns[ci])btns[ci].classList.add("good");
   tile.classList.add(i<0?"dropped":"miss","show-py");
@@ -317,13 +350,38 @@ function fail(i){
   setTimeout(()=>{if(!S.running)return;S.lives<=0?gameOver():newRound()},1300);
 }
 
+function sparks(gold){if(reduce)return;
+  const cx=(S.tx||0)+tile.offsetWidth/2,cy=(S.ty||0)+tile.offsetHeight/2,cols=gold?["#f2c14e","#ffd86b","#fff1bf"]:["#2b8a4c","#f2c14e","#d23a2b","#9cc79a"];
+  for(let k=0;k<(gold?22:14);k++){const d=document.createElement("i");d.className="spark";const a=Math.random()*Math.PI*2,r=50+Math.random()*(gold?90:60);
+    d.style.left=cx+"px";d.style.top=cy+"px";d.style.background=cols[k%cols.length];d.style.setProperty("--dx",Math.cos(a)*r+"px");d.style.setProperty("--dy",Math.sin(a)*r+"px");
+    stage.appendChild(d);setTimeout(()=>d.remove(),750)}}
+function showTut(){const b=$("tut");if(S.tut>0){$("tutTxt").textContent=t("tut");$("tutSkip").textContent=t("skip");b.hidden=false}else b.hidden=true}
+function endTut(){S.tut=0;store.set("wd-tut","1");$("tut").hidden=true;ans.querySelectorAll(".pulse").forEach(x=>x.classList.remove("pulse"))}
+function useFifty(){
+  if(!S.running||S.paused||S.lock||S.between||!(S.fifty>0)||S.used50)return;
+  S.fifty--;S.used50=true;const ci=S.opts.indexOf(S.cur);
+  shuffle([0,1,2,3].filter(i=>i!==ci)).slice(0,2).forEach(i=>{const b=ans.children[i];if(b){b.classList.add("gone");b.disabled=true}});
+  beep("fifty");hud();
+}
+function stageClear(){
+  S.lock=true;S.between=true;CG.game("gameplayStop");
+  const stars=S.lost===0?3:S.lost===1?2:1,bonus=stars*50,life=S.lives<MAXL;
+  S.score+=bonus;S.fifty++;if(life)S.lives++;
+  tile.style.visibility="hidden";beep("clear");hud();
+  ov.innerHTML=`<div class="card"><h2>${T[P.ui].cleared(S.stage)}</h2>
+  <div class="stars">${[1,2,3].map(i=>`<span class="star${i<=stars?" on":""}"></span>`).join("")}</div>
+  <div class="big">${S.score}</div><p>${T[P.ui].bonus(bonus,life)}</p>
+  <button class="cta" type="button" data-act="next">${t("next")}</button></div>`;
+  ov.hidden=false;
+}
+function nextStage(){if(!S.between)return;S.between=false;S.stage++;S.hits=0;S.lost=0;ov.hidden=true;CG.game("gameplayStart");newRound()}
 function uiSeg(){return [["vi","Tiếng Việt"],["en","English"]].map(([k,l])=>`<button type="button" data-act="ui" data-v="${k}" aria-pressed="${k===P.ui}">${l}</button>`).join("")}
 function learnSeg(){return Object.entries(LANGS).map(([k,v])=>{const off=P.ui==="en"&&k==="en";return `<button type="button" data-act="learn" data-v="${k}" aria-pressed="${k===P.learn}"${off?" disabled":""}><span lang="${k}">${v.native}</span><small>${off?t("needVi"):v.name[P.ui]}</small></button>`}).join("")}
 function lvSeg(){return lvKeys().map(k=>`<button type="button" data-act="lv" data-v="${k}" aria-pressed="${k===P.level}">${esc(lvName(k))}<small>${t("best")} ${best(k)}</small></button>`).join("")}
 function toggles(){return ["sound","voice","hint"].map(k=>`<button type="button" data-act="tg" data-k="${k}" aria-pressed="${P[k]}">${t(k)}</button>`).join("")}
 function showStart(){
   if(S.running)CG.game("gameplayStop");
-  S.running=false;S.paused=false;S.lock=true;tile.style.visibility="hidden";placeholders();applyLang();hud();updateSum();
+  S.running=false;S.paused=false;S.lock=true;S.between=false;tile.style.visibility="hidden";$("tut").hidden=true;placeholders();applyLang();hud();updateSum();
   ov.innerHTML=`<div class="card wide"><div class="cg"><div><h2>${t("title")}</h2><p>${t("intro")}</p><p class="keys">${t("keys")}</p>
   <button class="cta" type="button" data-act="start">${t("start")}</button></div><div>
   <div class="lbl">${t("learn")}</div><div class="seg two">${learnSeg()}</div>
@@ -333,19 +391,19 @@ function showStart(){
   ov.hidden=false;
 }
 function setPause(v){
-  if(!S.running)return;S.paused=v;hud();CG.game(v?"gameplayStop":"gameplayStart");
+  if(!S.running||S.between)return;S.paused=v;hud();CG.game(v?"gameplayStop":"gameplayStart");
   if(v){ov.innerHTML=`<div class="card"><h2>${t("paused")}</h2><p>${T[P.ui].pausedTxt(S.score)}</p>
   <div class="lbl">${t("options")}</div><div class="tg">${toggles()}</div>
   <button class="cta" type="button" data-act="resume">${t("resume")}</button><button class="ghost" type="button" data-act="menu">${t("menu")}</button></div>`;ov.hidden=false}
   else ov.hidden=true;
 }
 function gameOver(){
-  S.running=false;S.lock=true;hud();CG.game("gameplayStop");
+  S.running=false;S.lock=true;$("tut").hidden=true;hud();CG.game("gameplayStop");
   const old=best(P.level),rec=S.score>old;if(rec){store.set(bestKey(P.level),S.score);if(old>0)CG.game("happytime")}
   const miss=S.missed.map(w=>`<li><b lang="${P.learn}">${esc(w[0])}</b><i>${esc(w[1])}</i><span>${esc(M(w))}</span></li>`).join("");
   ov.innerHTML=`<div class="card"><h2>${t("over")}</h2>
   <div class="big">${S.score}${rec?`<span class="rec">${t("newRec")}</span>`:""}</div>
-  <p>${T[P.ui].stats(S.right,S.total,L().name[P.ui]+" "+lvName(P.level),Math.max(old,S.score))}</p>
+  <p>${T[P.ui].reached(S.stage)} · ${T[P.ui].stats(S.right,S.total,L().name[P.ui]+" "+lvName(P.level),Math.max(old,S.score))}</p>
   ${miss?`<div class="lbl">${t("review")}</div><ul class="miss-list">${miss}</ul>`:""}
   ${CG.ok&&ADS&&!S.revived?`<button class="cta" type="button" data-act="revive">${t("revive")}</button><button class="ghost" type="button" data-act="again">${t("again")}</button>`:`<button class="cta" type="button" data-act="again">${t("again")}</button>`}<button class="ghost" type="button" data-act="menu">${t("change")}</button></div>`;
   ov.hidden=false;
@@ -354,6 +412,7 @@ function gameOver(){
 ov.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b||b.disabled)return;const a=b.dataset.act,v=b.dataset.v;
   if(a==="start")start();
+  else if(a==="next")nextStage();
   else if(a==="again"){b.disabled=true;CG.ad("midgame").then(start)}
   else if(a==="revive"){b.disabled=true;CG.ad("rewarded").then(ok=>{if(ok){S.revived=true;S.running=true;S.paused=false;S.lives=1;S.combo=0;ov.hidden=true;hud();CG.game("gameplayStart");newRound()}else{b.disabled=false;b.textContent="—";b.hidden=true}})}
   else if(a==="resume")setPause(false);
@@ -365,8 +424,12 @@ ov.addEventListener("click",e=>{
 });
 ans.addEventListener("click",e=>{const b=e.target.closest(".opt[data-i]");if(b)choose(+b.dataset.i)});
 $("pauseBtn").addEventListener("click",()=>setPause(!S.paused));
+$("fiftyBtn").addEventListener("click",useFifty);
+$("tutSkip").addEventListener("click",endTut);
 document.addEventListener("keydown",e=>{
+  if(S.between&&(e.key==="Enter"||e.key===" ")){e.preventDefault();nextStage();return}
   if(e.key>="1"&&e.key<="4"){choose(+e.key-1);return}
+  if(e.key==="h"||e.key==="H"){useFifty();return}
   if((e.key===" "||e.key==="p"||e.key==="P")&&S.running){e.preventDefault();setPause(!S.paused);return}
   if(e.key==="Enter"&&!S.running&&!ov.hidden&&!e.target.closest("button")){e.preventDefault();start()}
 });
@@ -380,7 +443,7 @@ function loop(n){
 const ro=new ResizeObserver(()=>{if(S.cur&&tile.style.visibility==="visible")place(Math.min(1,(S.elapsed||0)/(S.fall||7000)))});ro.observe(stage);
 try{if("speechSynthesis" in window)speechSynthesis.getVoices()}catch(e){}
 CG.game("loadingStart");showStart();requestAnimationFrame(loop);
-CG.init().then(()=>{CG.game("loadingStop");try{const loc=(CG.ok&&window.CrazyGames.SDK.user&&window.CrazyGames.SDK.user.systemInfo&&window.CrazyGames.SDK.user.systemInfo.locale)||"";if(!store.get("wd-ui")&&/^vi/i.test(loc)){P.ui="vi"}}catch(e){}if(!S.running&&!ov.hidden&&ov.querySelector('[data-act="start"]'))showStart()});
+CG.init().then(()=>{CG.game("loadingStop");try{const loc=(CG.ok&&window.CrazyGames.SDK.user&&window.CrazyGames.SDK.user.systemInfo&&window.CrazyGames.SDK.user.systemInfo.locale)||"";if(!store.get("wd-ui")&&/^vi/i.test(loc)){P.ui="vi"}}catch(e){}if(!store.get("wd-tut")&&!S.running)start();else if(!S.running&&!ov.hidden&&ov.querySelector('[data-act="start"]'))showStart()});
 }
 </script>
 </body>
